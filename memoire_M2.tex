@@ -1,0 +1,1258 @@
+\documentclass[12pt,a4wide,twoside]{report}
+
+\usepackage[utf8]{inputenc} % un package
+\usepackage[T1]{fontenc}      % un second package
+\usepackage[french]{babel}  % un troisième package
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{textcomp}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{multirow}
+\usepackage{pdflscape}
+\usepackage{colortbl}
+\usepackage{color}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+%\usepackage{picins}
+\usepackage[top=2cm, bottom=2cm, left=2.5cm, right=2.5cm]{geometry}
+
+\definecolor{lightgray}{gray}{0.85}
+\pagestyle{fancy}
+\renewcommand\headrulewidth{0.5pt}
+% ------------ DEFINITION DES ENTETES ----------------------------
+\fancyhead[L]{\emph{Évolution de la BI face au Big Data\newline (Les processus ETL)} }
+\fancyhead[C]{\emph{Université Paris Ouest}}
+\fancyhead[R]{\emph{Abdourahmane GAYE}}
+% -----------------------------------------------------------------
+\setlength{\parindent}{1cm}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\newcommand{\hsp}{\hspace{20pt}}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+
+
+
+\begin{document}
+\begin{titlepage}
+  \begin{sffamily}
+  \begin{center}
+
+    
+    
+		\begin{center}
+				\includegraphics[width=10cm]{images/logoNanterre.png}
+		\end{center}
+		    \HRule \\[2cm]
+		
+		
+
+
+    \textsc{\Large Mémoire de fin d'étude Master 2 (M.I.A.G.E)}\\[1.5cm]
+        \includegraphics[width=5cm]{images/miage.png}    \\[1cm]
+    
+    		\textsc{\LARGE Spécialité: Agilité des Systèmes d'Information et E-Business} \\[1cm]
+
+    % Title
+    \HRule \\[0.4cm]
+    { \LARGE \bfseries Évolution de la Business Intelligence face au Big Data\\ (Les processus ETL)\\[0.4cm] }
+
+    \HRule \\[2cm]
+
+
+    % Author and supervisor
+    \begin{minipage}{0.4\textwidth}
+      \begin{flushleft} \large
+        Rédigé par:\\
+        Abdourahmane GAYE\\
+      \end{flushleft}
+    \end{minipage}
+    \begin{minipage}{0.4\textwidth}
+      \begin{flushright} \large
+        \emph{Tutrice mémoire :} Mme. \textsc{Marta RUKOZ}
+      \end{flushright}
+    \end{minipage}
+
+    \vfill
+
+    % Bottom of the page
+    {\large Janvier 2017 —  Juillet 2017}
+
+  \end{center}
+  \end{sffamily}
+\end{titlepage}
+
+\tableofcontents
+\listoffigures
+\addcontentsline{toc}{chapter}{\protect\numberline{}Acronymes}
+\chapter*{Acronymes}
+\begin{table}[h]
+				\begin{center}
+				{\renewcommand{\arraystretch}{2}
+					\begin{tabular}{|c|c|}
+					\hline
+					\textbf{ACRONYMES}&\textbf{LIBELLES}\\	
+					\hline
+					ETL&Extract Transform Load\\
+					\hline
+					BI&Business Intelligence\\
+					\hline
+					DW&Data Warehouse\\
+					\hline
+					OLAP&OnLine Analytical Processing\\
+					\hline
+					CRM&Customer Relationship Management\\
+					\hline
+					ERP&Enterprise Ressource Planning \\
+					\hline
+					JVM&Java Virtual Machine\\
+					\hline
+					HDFS&Hadoop Distributed File System\\
+					\hline
+					XML&eXtensible Markup Language\\
+					\hline
+					CSV&Comma-Separated Values\\
+					\hline
+					LDAP&Lightweight Directory Access Protocol\\
+					\hline
+					PDI&Comma-Separated Values\\
+					\hline
+					ODBC&Comma-Separated Values\\
+					\hline
+					JDBC&Comma-Separated Values\\
+					\hline
+					IT&Information Technology\\
+					\hline
+					\end{tabular}
+					\end{center}
+					\caption{Liste des acronymes}
+\end{table} 
+%{\fontfamily{pag}\selectfont
+\addcontentsline{toc}{chapter}{\protect\numberline{}Introduction}
+\chapter*{Introduction}
+La majeure partie des entreprises évoluent dans un environnement très complexe et notamment concurrentiel. Cette nature du marché fait que les acteurs du milieu se doivent de surveiller étroitement leurs produits ou services, afin de ne pas se laisser devancer par leurs concurrents, mais aussi de mieux maîtriser les attentes de leur clientèle et de leurs éventuels partenaires. \newline
+Pour ce faire, les entreprises, en l'occurrence les personnes qui y sont habilitées doivent s'assurer de prendre les bonnes décisions. Cette notion de décision a ici toute son importance. En effet, les décisions vont grandement impacter sur le devenir d'une entreprise donnée, donc sur sa stratégie.\newline
+La décision au sein de l'entreprise ne doit être ni banalisée, ni prise de manière précipitée, compte tenu de sa conséquence future sur le devenir de l'entreprise, à court ou à long terme. Il s'agit alors de prendre des décisions bien fondées, basées sur des informations très pertinentes.\newline
+Mais où trouver ces informations ? Comment y accéder ?\newline
+Les systèmes décisionnels ont vu le jour pour justement apporter des solutions à cette problématique. Ces systèmes permettent aux décideurs d'avoir à portée de main des informations de qualité sur lesquelles ils auront la possibilité de prendre position en ce qui concerne leurs choix décisionnels. Pour ce faire, beaucoup de technologies et de notions vont apparaître, dont les entrepôts de données (ou Data Warehouse) qui représentent un ensemble clé et incontournable pour la construction d'un système décisionnel. L'ensemble de ces technologies et systèmes forment ce que l'on appelle la \emph{Business Intelligence}.\newline
+Ceci dit, les données stockées dans l'entrepôt proviennent de sources et sont destinées à être analysées. Il faut noter que ces sources peuvent être variées, d'où l'importance et l'intérêt de faire usage à un Data Warehouse. Parmi ces dernières sources, le \emph{Big Data}.\newline
+Le Big Data désigne l'ensemble des données qui prennent de plus en plus de volumes, que l'on ne pourrait plus se contenter de travailler avec des outils classiques pour gérer les données ou les informations. D'où un challenge pour la BI de faire face à cet accroissement de volumes de données afin de permettre de traiter aussi bien que possible des données provenant de sources de type Big Data.\newline
+Dans ce mémoire, nous étudierons des outils et méthodes que le domaine de la BI a mis en place pour faire face aux technologies du Big Data. En d'autres termes, par le biais de solutions disponibles sur le marché du décisionnel, nous effectuerons des études comparatives autour de différents éditeurs de solutions logicielles, ferons des expériences avec les plus utilisées parmi ces solutions, puis verrons comment elles intègrent des données de types Big Data pour permettre une analyse parfaite des décideurs.
+ 
+
+
+% ******************************* Premier CHAPITRE **********************************
+%																																											%
+%																	******************																	%
+\chapter{Présentation générale} %Etat de l'art
+	%\section{Introduction}
+	Toute entreprise dispose en son sein, d'une masse de données très considérable qui représentent des informations clés pour l'entreprise. Ces informations peuvent provenir aussi bien de sources internes que de sources externes. La multiplicité des données fait que l'entreprise ressente le besoin de recourir à une informatique nouvelle dite "Informatique décisionnelle". Elle met plutôt l'accent sur la parfaite maîtrise de l'entreprise dans son environnement, et de l'exploitation des ses données de la manière qu'il faut.\newline
+	En effet, les personnes habilitées à la prise de décision dans une entreprise, ont besoin d'avoir la meilleure vue possible des données et de leur évolution, afin de mettre en place des indicateurs pertinents. Ces indicateurs dits de "business" représentent des éléments clés, utiles aux décideurs pour une bonne prise de décision.
+
+	Une solution incontournable pour la mise en place de systèmes décisionnels est le \emph{Data Warehouse} ou \emph{Entrepôt de données} en français.\newline
+	Les premiers objectifs du Data Warehouse consistaient en la réalisation de bases de données intégralement destinées aux processus décisionnels.\newline
+	Mais, les nouveaux besoins de l'entreprise, la montée en volume des données produites et l'apparition de plein de nouvelles technologies ont entraîné l'arrivée du concept de Data Warehouse servant de support aux systèmes décisionnels. 	
+	
+	\section{État de l'art}
+	
+\subsection{Les Systèmes décisionnels}
+	L'informatique décisionnelle définie au sein de l'entreprise justifie l'existence des entrepôts de données. Ainsi, il sera très nécessaire de définir quelques notions clés autour du décisionnel.\newline
+	Pour mieux comprendre ce qu'est le décisionnel, il faut le placer dans son contexte et définir d'abord la notion de système d'information (SI).\emph{"Le SI représente un ensemble organisé de ressources qui permet de regrouper, de traiter et de diffuser les informations sur un environnement donné de l'entreprise"} \textbf{[Wikipédia]}.\newline
+La principale fonction du SI est d'assurer la production de ces informations qui proviennent d'un système opérant, et par la suite de les mettre à disposition d'un système de pilotage que l'on considère comme étant le système de décision.
+
+Le système opérationnel et le système de pilotage diffèrent en fonction des tâches qui leur sont attribuées. En d'autres termes, d'un point de vue fonctionnel, les deux systèmes au niveau de l'entreprise n'ont pas les mêmes comportements vis à vis de l'usage des données. Ces différences vont conduire à l'apparition des Systèmes d'Information Décisionnels (SID).
+\begin{figure}[!h]
+\begin{center}
+	\includegraphics[width=13cm]{images/leDecisionnel.png}
+\end{center}
+\caption{Place du décisionnel dans l'entreprise}
+\end{figure}
+
+La figure ci-dessus reflète parfaitement la place du décisionnel au sein de l'entreprise. Cette place comprend plusieurs autres fonctions internes, qui sont des fonctions clés. De là, on peut dire que le décisionnel a des composantes.
+
+\subsection{Le Data Warehouse}
+
+Le Data Warehouse ou entrepôt de données est une base de données destinée à stocker l’ensemble des données nécessaires dans le cadre de la prise d’une décision ou de l’analyse de données dans l’entreprise.\newline
+Au sein de l'entreprise, le Data  Warehouse est organisé en fonction des différents thèmes majeurs d'une organisation. Les données d'un Data Warehouse sont destinées à un processus analytique. Par ailleurs, l'entrepôt de données est censé intégrer des données de différentes sources, ce qui nécessite alors une gestion parfaite des incohérences.\newline
+Dans tout système décisionnel, il est primordial de pouvoir suivre les différentes valeurs d'une donnée qui évolue dans le temps. L'entrepôt de données assure justement cette fonctionnaité vis à vis des données qu'il détient; on parle d'évolutivité du Data Warehouse.\newline
+Les données de l'entrepôt sont organisées de façon à ce que ces dernières puissent subir des processus d'aide à la décision que sont le Reporting, le Data Mining etc ... Ces nouvelles notions un peu techniques seront vues en détails plus loin dans ce document. 
+\subsubsection{Un peu d'histoire sur le Data Warehouse}
+Le concept de "Data Warehouse" en tant que tel remonte aux années 80, pendant lesquelles les acteurs du milieu ont éprouvé un réel intérêt pour les systèmes décisionnels, notamment avec l'arrivée des bases de données relationnelles popularisées par Oracle et la puissance qu'offre le langage SQL \cite{misc9}.
+
+
+Auparavant, le Data Warehouse était tout simplement vu comme une recopie des données se trouvant dans le système opérationnel. Ainsi, à partir de ce dernier système, étaient extraites les données qui, par la suite, vont être stockées dans une nouvelle base de données pour permettre la réponse des requêtes futures des décideurs.
+
+
+Actuellement, le Data Warehouse ne se voit plus comme étant cette copie des données du système opérationnel. Il est plutôt vu comme une base d'informations, alimentée avec des données consolidées de plusieurs et différentes sources. 
+
+ \subsubsection{Éléments d'un Data Warehouse}
+ Un environnement Data Warehouse relate globalement quatre composantes principales. Elles sont les zones des\newline
+ applications opérationnelles, de préparation de données, de présentation des données et d'accès aux données par le biais d'outils technologiques.
+ 
+ 
+\textbf{Les applications opérationnelles} sont celles du système opérationnel de l'entreprise. Même si ces dernières sont plutôt considérées comme extérieures au Data Warehouse, il est quand même important de préciser leur rôle qui est d'assurer le fonctionnement et la performance du bloc opérationnel.
+
+
+\textbf{La préparation des données} englobe tous les processus intervenant entre le système opérationnel et la présentation des données. Ces processus sont principalement les \emph{ETL "Extract Transform Load"} qui assurent les phases de l'extraction des données, en passant par une transformation de ces dernières, à leur chargement. Nous reviendrons en détails sur ces points, plus loin dans ce document.
+
+
+\textbf{La présentation des données} définit l'espace sur lequel les données sont stockées d'une manière organisée; c'est l'entrepôt en d'autres termes.\newline
+C'est cette phase qui permet aux utilisateurs d'accéder aux données par le biais d'outils d'accès.
+
+
+\textbf{Les outils d'accès aux données} sont l'ensemble des possibilités à disposition de l'utilisateur, lui permettant d'exploiter la zone de présentation des données pour d'éventuelles prises de décision.
+
+
+\subsubsection{Construction du Data Warehouse}
+A l'issue de plusieurs recherches faites par des équipes de chercheurs en vue de proposer des démarches de construction d'un projet Data Warehouse, les utilisateurs maîtrisent davantage le système décisionnel. Ces démarches se résument en ces étapes suivantes:
+
+
+\textbf{Une étape de modélisation et de conception:}\newline
+Elle se décompose en deux approches qui restent les plus connues jusque là: besoins d'analyses et sources de données. Il est important de préciser que le Data Warehouse reste le même quelque soit l'approche mise en œuvre pour sa conception.
+\begin{itemize}
+	\item Besoins d'analyse:\newline
+	Cette approche est aussi appelée la \textbf{Top-Down} qui veut dire approche descendante. En effet, tout le contenu de l'entrepôt sera déterminé en fonction des besoins des utilisateurs finaux. La méthode \emph{Top-Down} consiste en la conception de l'entrepôt en entier, avant de passer à sa réalisation. Ce qui fait que cette méthode soit la plus lourde et la plus complète.
+	
+	
+	\begin{table}[h]
+				\begin{center}
+					\begin{tabular}{|c|c|}
+					\hline
+					\textbf{POINTS FORTS}&\textbf{POINTS FAIBLES}\\
+					\hline
+					\multirow{4}{1cm}{}Offre une vision très claire&Non évolutif \\
+					et conceptuelle des&Il faut modifier la structure du DW\\
+					données de l'entreprise&en cas de nouveaux besoins \\
+					&Système opérationnel négligé\\
+					\hline
+					\end{tabular}
+					\end{center}
+					\caption{Avantages et inconvénients de l'approche Top-Down}
+	\end{table}
+	
+	\item Source de données \newline
+	Cette approche est aussi appelée approche "Bottom-Up". Elle est l'inverse du Top-Down et consiste à déterminer le contenu du DW selon les sources de données. Cette méthode est simple à réaliser mais le volume de travail d'intégration de données qui permet d'obtenir le Data Warehouse complet est important.
+	
+	
+	\begin{table}[h]
+				\begin{center}
+					\begin{tabular}{|c|c|}
+					\hline
+					\textbf{POINTS FORTS}&\textbf{POINTS FAIBLES}\\
+					\hline
+					\multirow{4}{1cm}{}Prise en charge de&Complexité des sources de données \\
+					l'évolution des données&Le schéma des données source\\
+					Simple à réaliser&évolue\\
+					&\\
+					\hline
+					\end{tabular}
+					\end{center}
+					\caption{Avantages et inconvénients de l'approche Top-Down}
+	\end{table}
+\end{itemize}
+
+Par ailleurs, on peut trouver une approche supplémentaire qui consisterait en un mixage de ces deux dernières méthodes que nous venons de voir. Il s'agit de l'approche mixte.\newline
+L'approche mixte peut être bien efficace puisqu'elle prend en compte aussi bien les sources de données que les besoins des utilisateurs. C'est cette approche qui est conseillée par les professionnels de la BI. Elle consiste à concevoir totalement l'entrepôt de données avant de créer des divisions plus petites et de les mettre en œuvre.\newline
+L'approche mixte englobe tous les avantages des deux méthodes vues précédemment puis présente des inconvénients de complexité de sources de données et de difficulté de détermination des besoins analytiques.
+\subsubsection{Alimentation du Data Warehouse}
+Le Data Warehouse une fois en place, est destiné à être alimenté et chargé de données. Pour ce faire, il advient de passer par différentes phases qui à elles toutes représentent ce que l'on appelle un processus ETL.\newline 
+Ce processus a pour but de garantir le peuplement de l'entrepôt en données homogènes, nettoyées et fiables.\newline
+La phase d'alimentation peut se dérouler de plusieurs manières différentes, qui dépendent de politiques d'alimentation. Il existe plusieurs politiques:
+\begin{description}
+	\item[Push: ]Comme son nom l'indique, cette politique consiste à pousser les données du système de production vers la zone de préparation de données. Le push se fait que lorsque le système de production est disponible. Donc, si ce dernier est occupé, il ne pourra jamais pousser les données; ce qui fait l'inconvénient de cette méthode de push.
+	\item[Pull ]Il s'agit du contraire de la méthode push. En effet, le pull permet de tirer ou d'extraire des données provenant de la source pour les mettre dans la zone de préparation .
+	\item[Push-Pull ]C'est la combinaison des deux dernières méthodes. Ici, c'est la source qui est chargée de préparer les données? Une fois prête, la source indiquera à la zone de préparation qu'elle est en état de livrer les données. A ce stade, la zone de préparation aura juste à récupérer ces données disponibles dans la source.
+\end{description}
+L'alimentation de données est une phase cruciale pour un Data Warehouse. Ainsi, elle doit répondre à un certain nombre d'exigences représentant les objectifs clés du processus ETL, permettant d'assurer la qualité des données de l'entrepôt:
+\begin{description}
+	\item[Correctivité: ]le processus ETL doit nécessairement apporter des correctifs pour une meilleure qualité des données.
+	\item[Sûreté: ]pour assurer que les données sont bien acheminées et livrées.
+	\item[Transparence: ]toujours dans l'optique d'assurer la qualité des données, le processus ETL doit être transparent.
+	\item[Rapidité: ]un volume de données très important peut causer des ralentissements du système. Ainsi, le processus d'alimentation doit pouvoir régler ce phénomène en assurant le chargement de l'entrepôt dans des délais raisonnables.
+\end{description}
+\subsubsection{Exploration du Data Warehouse }
+L'exploration du Data Warehouse se fait par le biais d'outils analytiques. Ces outils permettent de réaliser plusieurs tâches; tâches qui dépendent des fins d'utilisations des données par l'utilisateur. En d'autres termes, il faut savoir à quelles fins un utilisateur veut explorer les données d'un Data Warehouse, pour pouvoir savoir l'outil analytique adéquat, et les tâches adéquates qu'il permet de réaliser.
+\begin{description}
+\item[Le reporting: ] principalement destiné à la création de tableaux de bords et de rapports.\newline
+Le reporting est \emph{la présentation périodique de rapports sur les activités et résultats d'une organisation.}\cite{misc10} Il désigne une famille d'outils de la BI, destinés à assurer la réalisation et la diffusion de rapports selon un format qui soit prédéterminé.\newline
+Le principe des outils de reporting est d'assurer l'interrogation de base de données contenant les informations, et ceci selon des requêtes SQL préparées au moment de l'élaboration du modèle des données.\newline
+Il faut préciser que ces outils ne sont pas en tant que tels des outils d'aide à la décision mais permettent par contre d'avoir une vue très précise de l'information, lorsqu'ils sont utilisés de manière appropriée.
+
+\item[Tableau de bord: ]outil de pilotage qui permet d'avoir une vue sur l'évolution d'un processus. Cette vision sur les processus permet aux utilisateurs habilités, d'apporter des actions correctives.\newline
+Le tableau de bord est défini comme un ensemble d'indicateurs sur lesquels les gestionnaires peuvent prendre connaissance de l'état actuel, et des évolutions possibles de leurs systèmes.
+
+
+Le tableau de bord montre une présentation assez limité des données, montrant l'essentiel ou la mise en évidence de l'état d'un indicateur par rapport à des objectifs le concernant. Les outils de tableau de bord optent pour une présentation graphique de l'information.
+
+\item[Le Data Mining: ]littéralement défini comme étant un forage de données.\newline
+Dans toutes les entreprises, il existe des connaissances utiles, qui sont éventuellement cachées dans des gisements de données. Le but du Data Mining est justement de permettre l'extraction de ces connaissances, qui représentent de la matière brute; en d'autres termes, l'extraction de structures originales en relatant des corrélations entre les données.
+\item[Les requêtages ad-hoc: ]concernant les utilisateurs pas forcément informaticiens.\newline
+Grâce à des requêtages ad-hoc, l'utilisateur non métier pourra créer des rapports ou en modifier des existants. Quant aux analystes, ils seront amenés à interagir avec le DW via ces types de requêtes (ad-hoc), pour pouvoir procéder à des analyses nécessaires pour leurs métiers. Ils pourront ainsi élaborer des rapports ou tableaux de bord spécifiques.
+
+\item[Une analyse dimensionnelle des données: ] analyse la plus adéquate pour faire ressortir les capacités de l'entrepôt de données.\newline
+Le but de cette analyse est de permettre aux utilisateurs d'analyser les données tout en tenant compte de plusieurs critères; il s'agit d'une analyse basée sur différents critères ayant pour finalité de confirmer une tendance ou de connaitre les performances d'une entreprise. \newline
+L'analyse dimensionnelle se fait selon le principe OLAP en vue d'offrir aux utilisateurs différentes opérations de navigation des données. Il existe des outils spécifiques permettant de faire ce type d'analyse; on les appelle des outils OLAP.\newline
+L'utilisation de ces types d'outils reste très intéressante dans la mesure où elles permettent d'accéder aux données en analyse instantanée. Les fournisseurs de solutions OLAP sont très nombreux sur le marché et offrent différentes solutions qui dépendent de méthodes et des technologies variées. Ainsi, tout choix d'un outil OLAP doit se faire au préalable, en fonction des besoins d'utilisation, des moyens disponibles et de l'architecture de l'entrepôt de données.
+
+\end{description}
+
+		
+	\section{Contexte et Problématique du sujet}
+Le traitement de l'information représente un réel dilemme pour les entreprises. Du Web Analyst au simple utilisateur, en passant par le Data Scientist, tout le monde dans l'entreprise tente d'avoir une compréhension claire sur l'exploitation des données disponibles afin d'en déduire les éventuels bénéfices réels de l'entreprise.\newline
+Mais, il se trouve que le volume des données a remarquablement augmenté en quelques années. Ceci fait voir des challenges importants, exprimés par les les Data managers:
+\begin{itemize}
+	\item explosion de l'information
+	\item les échanges sur les réseaux sociaux qui deviennent très importants
+	\item plusieurs outils de consultation de l'information apparaissent 
+\end{itemize}
+Cette situation entraîne de nouvelles perspectives et suscite des questionnements sur l'utilisation des anciennes technologies existantes pour parvenir à l'exploitation d'une quantité de données si massive et abondante. On assiste à un paradigme qui consiste en un accroissement de données sans réelle explication ni contexte qui rend quasi impossible la transformation de ces données en informations concluantes. En d'autres termes, une transformation en des informations dont on pourrait se baser pour une prise de décision sure.
+
+
+La Business Intelligence peut être vue comme un ensemble d'outils et de technologies permettant de collecter, nettoyer et d'alimenter des données, en vue de les stocker dans différentes sources. Ainsi, il faudrait alors s'assurer que les données puissent être gérées dans des formats normalisés afin de rendre facile tout accès à l'information et d'optimiser les vitesses de traitement.\newline
+Ainsi, il faut voir comment la BI, à travers ces outils et technologies, arrive à faire face au données du Big Data, pour assurer cette vitesse de traitement, et palier à tout ralentissement de processus, dû au volume de données très important. 
+
+	
+	\section{Objectifs}
+La BI permet aux acteurs du domaine, d'avoir une maîtrise parfaite des données. En effet, par le biais d'indicateurs de performance, il est facile pour les utilisateurs de comprendre le passé, d'analyser le présent en vue de prédire une vision future pour mettre en place des avantages de l'entreprise.\newline
+Les entreprises devront ainsi se débarrasser de leurs systèmes traditionnels, moyennant des infrastructures matérielles et bases de données relationnelles. Ceci, a pour finalité de faire face au Big Data autour de ses différents caractéristiques:
+\begin{itemize}
+	\item Volume: il s'agit ici de voir comment l'IT d'une entreprise pourrait challenger pour pouvoir traiter des volumes de données en téraoctets, pétaoctets etc ...
+	Notre objectif sera ici de voir quels sont les coûts, quels sont les outils de stockage et de traitement réel, quelles méthodes faut-il adopter pour analyser l'information. \newline
+	\item Vélocité: les systèmes doivent anticiper leur vitesse de réaction et d'anticipation aux requêtes? L'information n'étant plus statique, nous verrons comment les outils de la BI font pour parvenir à l'intégrer en temps réel, sachant que les schémas des données des anciens systèmes étaient conçus pour être alimentés en mode différé.\newline
+	\item Variété: quelque soit le format de l'information, quelque soit le modèle de données (structurées ou semi structurées), la BI doit mettre en place un nouveau savoir-faire, assimiler et analyser les données. Notre objectif dans ce cas de figure sera de voir quels outils permettent d'arriver à ces fins, et de voir la manière dont ils l'implémentent.
+	
+\end{itemize}
+
+
+	
+	% ******************************* Deuxième CHAPITRE **********************************
+%																																											%
+%																	******************																	%
+
+																\chapter{Approche théorique du décisionnel}
+	%\section{Définitions des concepts}
+Pour aboutir à une bonne étude et à des expériences claires concernant notre sujet, nous avons jugé nécessaire de passer par une phase théorique. Phase dans laquelle nous verrons beaucoup de notions de base du décisionnel et des outils qui seront utilisés tout au long de ce document.
+	%	\subsection{L'analyse}
+	
+%		\subsection{Les données}
+		
+%				\subsection{La prise de décision}
+
+	\section{La collecte des données décisionnelles}
+	
+	Auparavant, lors des premiers projets de BI, la phase de collecte et de préparation des données était en général très sous estimée. Raison pour laquelle il y avait très souvent des échecs de réalisation de projets au sein des entreprises, mais aussi des dépassements de budget étaient notables. Il faut dire même que cette étape de préparation de données représente les ¾ d’un projet BI. \newline
+	
+Ainsi, vu l’importance de cette phase au niveau du système global décisionnel, on assiste à l’apparition d’outils spécialisés et pratiques permettant de réussir au mieux la réalisation de cette dernière phase : les outils ETL (Extract, Transform, Load). 
+
+		\subsection{ETL Extract-Transform-Load}
+Les entreprises présentent des systèmes de gestion de données hétérogènes car l’élaboration des systèmes d’information de l’entreprise se fait le plus souvent sur une longue période. Même si la standardisation des communications entre les divers outils informatiques avance à grand as, l’incohérence des formats de données en circulation demeure toujours et est une réalité. Ceci constitue le principal obstacle technologique aux échanges d’informations. \newline
+
+En effet, les données à collecter sont stockées dans des systèmes de natures différentes. Ainsi, elles sont structurées différemment et ont des formats qui diffèrent aussi. \newline
+
+Cette situation entraîne beaucoup de difficultés quand il s’agit de la gestion des données, notamment un manque de cohérence des données de référence de l’entreprise.
+Pour qu’elles soient utilisables, les données de l’entreprise doivent être mises en forme, nettoyées et consolidées. Ainsi, les outils ETL font appel à plusieurs opérations qui s’articulent autour de trois axes majeurs :
+
+\subsubsection{Extract}
+L’extraction des données est la première étape des systèmes ETL. Comme son nom l’indique, le but de cette phase est d’extraire et de lire des données du système source.
+Au niveau de cette étape, il s’agit d’accéder à la majorité des systèmes de stockage de données, sachant que ces derniers sont nombreux et variés (SGBD, fichiers, ERP …). On fait recours à l’accès à ces systèmes afin de récupérer les données identifiées et sélectionnées.
+On peut imaginer que l’extraction s’avère ne pas être simple. En effet, si jamais le système source devrait fonctionner tout le temps (24h/24 et 7 jours/7), il faut que l’extraction soit faite de manière régulière et assez rapide. Cet intervalle de temps est appelé « extract window ». 
+Par ailleurs, l’extraction est complexe et cette complexité n’est pas dans le processus de lecture mais dans le respect du \emph{extract window}. C’est cette contrainte qui est d’ailleurs la principale raison de la séparation entre extraction et transformation. \newline
+De toutes les tâches ETL, le processus d’extraction représente l’une des plus consommatrices de temps. En effet, la détermination exacte des données à traiter est difficile. En somme, définir le processus d’extraction revient à déterminer une méthode d’extraction des données sources, de choisir un processus de transport de ces données et un processus de mise à jour de l’entrepôt de données à alimenter.
+
+\subsubsection{Transform}
+C’est dans cette étape que l’on réalise le déplacement des données du système source vers le système cible. Mais il faut dire que toutes les données ne sont pas utilisables telles quelles. Elles doivent être vérifiées d’abord, reformatées et nettoyées afin de pouvoir supprimer les valeurs erronées et les doublons. \newline
+La transformation est la phase la plus complexe et elle demande beaucoup de réflexion. En effet, elle englobe en son sein une multitude de fonctionnalités susceptibles d’intervenir dans la phase. Parmi ces dernières : \newline
+\begin{itemize}
+	\item Le nettoyage des données
+	\item La standardisation
+	\item La conformité
+	\item La gestion des tables de faits et des dimensions 
+\end{itemize}
+
+\subsubsection{Load}
+C’est dans cette phase que l’on se préoccupe de l’insertion des données dans le \emph{Data Warehouse}.\newline
+Les données chargées sont ensuite disponibles pour différents outils d’analyse et de présentation. On parle de \emph{Data Mining}, d’analyse multidimensionnelle OLAP, les reporting et les tableaux de bord. \newline
+Toutes ces dernières notions seront vues quand on abordera les outils ETL, en fonction de chaque outil vis à vis de sa manière de les implémenter.
+
+\subsection{Les Outils ETL}
+On note sur le marché de l’informatique décisionnelle, une panoplie d’outils qui permettent d’assurer le processus ETL. Par contre, il faut préciser qu’une partie de ces outils nécessite d’avoir une licence (c’est à dire qu’ils sont payants), d’autres sont gratuits. \newline
+Dans ce mémoire, nous traiterons que des outils Open Source.\newline 
+
+Historiquement, l'Open Source n'a jamais cessé de s'élargir pour toucher de nouveaux domaines d'application. De la conquête des systèmes d'exploitation (Linux par exemple), en passant par les bases de données (MySql ou PostgreSql) aux outils de gestion du web, plusieurs applications métiers Open Source ont également vu le jour.\newline
+Par ailleurs, ce sera le tour du domaine de la Business Intelligence qui a montré l'apparition de logiciels libres, couvrant ainsi tous les aspects du décisionnel: que ce soit le reporting, les dashboards, le data-mining, et bien sûr les ETL.
+Depuis quelques années, on note dans le marché de l'Open Source une multitude d'ETL qui ont fait leur apparition au milieu de la panoplie des ETL propriétaires. On peut dire que les outils ETL Open source sont alors une réelle alternative aux solutions propriétaires. Ces ETL ont évolué par le biais de l'émergence de \emph{l'OSBI} (Open Source Business Intelligence).\newline
+Voici un tableau reflettant une liste de plusieurs outils ETL Open Source, ainsi que certains critères concernant chacun de ces outils. Ces critères sont tous basés sur des informations que l'on retrouvera par exemple au niveau des sites de chaque logiciel ETL. En d'autres termes, ce que préconisent les propriétaires des logiciels.\newline 
+\emph{Critères:}
+\begin{description}
+	\item[Nombre d'utilisateurs:]
+	Ce critère nous permettra de voir le taux d'utilisation de chaque outil, au niveau du marché de la Business Intelligence. En d'autres termes, nous pourrons avoir une idée sur la popularité de chaque ETL, en fonction de son nombre d'utilisateurs grand ou petit.
+	\item [Domaine d'activité:]
+	Là, il s'agit de voir dans quels types d'entreprises est utilisé chaque outil.
+	\item [Intégration du NoSQL:]
+	Ce critère permet de déterminer si un ETL donné, permet d'intégrer les technologies du Big Data ou pas. Plus précisément, il s'agit de voir si l'ETL est utilisable pour les données de gros volume, en l'occurrence, les bases de données NoSQL.
+\end{description}
+Donc, voici quelques principaux logiciels ETL Open Source que l'on peut trouver actuellement sur le marché. La liste n'est pas exhaustive mais elle donne une idée générale des tendances actuelles. \newline
+			\begin{table}
+				\begin{center}
+					\begin{tabular}{|c|c|c|c|}
+					\hline
+					 &\multicolumn{3}{c|}{\textbf{Critères}}\\
+					\hline
+					\textbf{ETLs}&Nb Utilisateurs&Domaine d'activité&Intég. NoSQL\\
+					\hline
+					\multirow{3}{2cm}{Talend}&&SSII&OUI \\
+					& Plus de 1500 \cite{misc3}&PME &\\
+					&clients &Grandes entreprises &\\
+					& & & \\
+					\hline
+					\multirow{3}{2cm}{Scriptella}& &Utilisateurs novices &NON \\
+					&\textbf{N/A} &Pas besoin de connaitre des&\\
+					& & langages spécifiques &\\
+					& &(eg: SQL) &\\
+					\hline
+					\multirow{3}{2cm}{KETL}& & & OUI \\
+					& & &\\
+					&\textbf{N/A} & &\\
+					& & & \\
+					\hline
+					\multirow{3}{2cm}{Clover ETL}&Taille de la communauté et visibilité&Grandes entreprises &OUI \\
+					&Internet assez faible. & Laboratoires de recherche &\\
+					&Taux de fréquentation très bon &Entreprises petites et  &\\
+					& &moyennes & \\
+					\hline
+					\multirow{3}{2cm}{Pentaho}& &Laboratoires Scientifiques &OUI \\
+					&Un nombre &Vente en ligne &\\
+					&illimité \cite{misc4} &Ese. de services numériques &\\
+					& &Gestion d'intérim & \\
+					\hline					
+					\multirow{3}{2cm}{JasperSoft}& 94\% des clients &Petites Entreprises & OUI \\
+					&recommandent les &Grandes entreprises &\\
+					& technologies de &Moyennes entreprises &\\
+					&JasperSoft \cite{misc5} & & \\				
+					\hline					
+					\multirow{3}{2cm}{HPCC Systems}& Pleins de &Entreprises In- &OUI \\
+					&partenaires dont &formatiques &\\
+					&Pentaho &Services et conseils &\\
+					& &Sociétés internationales & \\				
+					\hline					
+					\multirow{3}{2cm}{Jedox}&1900 dans le&Assurance, Automobile... &OUI\\
+					&monde \cite{misc11}  &PME &\\
+					& &Grandes entreprises &\\
+					& & & \\
+					\hline				
+					\end{tabular}
+					\end{center}
+					\caption{Liste de quelques ETL Open source}
+					
+					\end{table} \newline
+			
+
+\subsubsection{Le temps réel et le Big Data	face à l'intégration des données}
+	Cette partie nous permet de voir un peu l'impact du temps réel et du Big Data sur l'intégration des données au sein des ETL. L' intégration peut éventuellement être perturbée par ces deux aspects. \newline
+	La phase d'intégration de données liée à la BI est très délicate au sein d'une entreprise. En effet, si elle n'est pas réalisée correctement, les utilisateurs finaux aussi bien que l'entreprise globale risquent de ne pas être satisfaits. Donc, toujours est-il qu'il est capital d’avoir en place un processus d’intégration de données de BI, bien conçu et parfaitement exécuté.\newline
+	Seulement, les données au sein de l'entreprise ont tendance a beaucoup gagner en volume. Ainsi, pour leur intégration, les tâches deviennent plus complexes du moment où il faudrait prendre en compte la réconciliation des données en fonction de leurs différentes sources, et puis d'autres aspects considérés comme des transformations. De là, on déduit clairement qu'il faudrait un peu plus de temps, et alors va naître une nouvelle problématique qui est le besoin d'alimenter les entrepôts de données en réel. En effet, il est très important d'avoir cet aspect de mise à jour très rapide des données afin de  pousser de l’information et de modifier les Data Warehouse et les systèmes de BI en temps réel; \newline
+	ce qui peut être utile pour la détection de fraudes, par exemple. 
+
+Voici une liste de quelques ETL Open Source parmi lesquels nous choisirons 4 par la suite, afin d’étudier leurs évolutions pour faire face au Big Data :
+
+\subsubsection{Talend Open Source Data Integrator}
+%\includegraphics[width=4cm]{images/talend.png}
+Talend présente une multitude de solutions pour l’intégration de données. Ces solutions sont à la fois open source et en éditions commerciales. Pour le module qui nous concerne, qui est l’intégration de données, il s’agit bien d’une solution gratuite.\newline
+Pour chaque traitement d’intégration des données, un code spécifique est généré en langage Java par exemple, ce qui fait que les données traitées et leurs traitements qui sont effectués sont fortement liés. \newline
+Par ailleurs, Talend facilite la manipulation des requêtes SQL au niveau des bases de données. En effet, il détecte les schémas et les relations entre les tables.
+Les concepteurs de cet outil très réputé ont pensé à l’importance de la portabilité d’un logiciel. Ils ont rendu possible le fait de pouvoir enregistrer des transformations sous forme de script, afin de pouvoir les exécuter sur n’importe quelle machine, avec la seule condition que cette dernière soit dotée d’une JVM. \newline
+Au moment précis où nous écrivons ces lignes, Talend en est à sa version 6.3.1.
+\begin{description}
+	\item[\textbf{Extraction:}] 
+		Talend permet l'extraction de différents types de données. Avec ses plus de 900 connecteurs \cite{connect}, il permet d'établir des connexions avec des sources de données variées: bases de données, fichiers non relationnels (flat), applications en cloud, ERP, CRM, SGBDR etc...\newline 
+Pour ce qui est de l'intégration de données à temps réel, Talend possède deux solutions qui sont \emph{Talend Data Fabric} et \emph{Talend Real-Time Big Data} pour un traitement des données en mémoire rapide et très performant. En effet, il est possible de transformer à temps réel, les données de l'entreprise en décisions, grâce à ces deux composants.
+	\item[\textbf{Transformation:}] 
+	Talend permet de transformer les données pour les réconcilier en fonction de leurs provenances (les différentes sources). Cela a pour but de permettre d'effectuer des calculs ou du découpage de texte, mais aussi pour respecter le format requis par les systèmes cibles. Il existe une panoplie de transformations de différents types (ajout de données, troncature, normalisation de lignes, remplacement de valeurs et encore plus d'autres options).
+	\item[\textbf{Chargement:}]
+	Quant au chargement des données résultantes, Talend gère tout le processus d'alimentation des données dans les cibles. Ces cibles peuvent être des Data Warehouse, des Data Marts, des applications OLAP (Online Analytical Processing) ou des “cubes”, etc.\newline
+	Par ailleurs, Talend possède des composants Big Data qui peuvent \emph{être configurés pour effectuer un chargement de données de masse vers Hadoop ou bien alors vers d’autres outils Big Data, soit par un processus manuel, soit par planification automatique, pour des mises à jour incrémentales des données.}\cite{chargTalend}
+\end{description}
+
+\textbf{Qu'en est-il des plateformes NoSQL ?} \newline
+		Talend supporte bien les plates-formes NoSQL. En effet, il présente une série de connecteurs spécifiquement dédiés à Cassandra, HBase et MongoDB. \cite{ref4}\newline
+		L'outil ETL fournissait déjà des composants graphiques pour permettre la configuration des technologies du Big Data comme par exemple, le système de fichiers HDFS d’Apache Hadoop.\newline
+		Ainsi, l'outil aide les entreprises à atteindre des plus hauts niveaux de performance en matière d’intégration des Big Data. Par ailleurs, la couverture des solutions d'intégration de Talend devient plus large, à travers des sources de données transactionnelles, opérationnelles et analytiques que l’on a tendance à trouver dans les environnements de la technologie des Big Data.
+		
+\subsubsection{Scriptella ETL}
+%\includegraphics[width=4cm]{images/scriptella.png}
+Scriptella est un de ces outils ETL qui mise entièrement sur l’aspect « simplicité » pour l’utilisateur. Comme la plupart des outils, il a été implémenté en java, toujours, dans le but d’avoir un outil simple. Ainsi, la mémoire est peu sollicitée, ce qui reste d’ailleurs un point positif pour les utilisateurs de cet ETL. Par ailleurs, l'outil présente une interopérabilité avec le XML. \newline
+Scriptella va plus loin en permettant l’exécution des scripts, ce qui épargne l’utilisateur de faire face à une nécessité d’apprendre un nouveau langage (qui soit basé sur du XML) pour effectuer les transformations dont il a besoin ; la connaissance d’un seul langage comme le SQL pourrait bien suffire.\newline
+Par contre, l’outil Scriptella n’a pas d’interface utilisateur graphique et sa dernière version stable fut la 1.1 et n’a pas évolué depuis Décembre 2012.
+\begin{description}
+	\item[\textbf{Extraction:}] 
+		Scriptella, bien qu'étant un outil qui donne toute l'importance de la notion de simplicité aux utilisateurs, présente des limites pour les types de sources qu'il gère. En effet, l'outil ne permet d'extraire des données qu'à partir de sources comme des fichiers CSV, textes, XML. Par ailleurs, il permet quand même l'accès à des répertoires basés sur le protocole LDAP; mais cela ne suffit pas vu les types d'accès que permet Talend par exemple.
+	\item[\textbf{Transformation:}] 
+	La transformation de données se fait dans Scriptella. En effet, par le biais du code Java, on peut àpartir du code SQL injecté, convertir les données et procéder à une série d’opérations. Par exemple, éliminer les doublons, les informations superflues, faire des jointures, des agrégats, etc.
+
+	\item[\textbf{Chargement:}]
+	
+		Les limites étudiées dans la partie "Extraction" de cet outil, sont aussi notées dans le chargement des données. En effet, Scriptella ne gère pas l'alimentation dans des sources un peu plus complexes que de simples fichiers plats. En d'autres termes, on peut citer par exemple les cubes OLAP qui sont quand même très déterminants dans le domaine du décisionnel; donc en voilà ici une remarquable limite de Scriptella ETL.
+	
+\end{description}
+
+\textbf{Qu'en est-il des plateformes NoSQL ?} \newline
+L'intégration des données de types NoSql n'est par contre pas gérée avec Scriptella. \newline En voilà une limite de cet ETL si nous donnons de l'importance à une éventuelle évolution pour faire face aux technologies du Big Data.
+
+\subsubsection{JasperSoft}
+%\includegraphics[width=6cm]{images/jasper.png}
+Jaspersoft est un logiciel qui permet à des millions d’utilisateurs d’accélérer leurs prises de décisions sur la base de données déjà prêtes; données qui sont aussi exploitables. Ces données sont disponibles dans les applications et les processus métier, via une plateforme de rapports et d’analyse très rentable.\newline
+Par ailleurs, l’évolution du domaine décisionnel et l’augmentation des besoins spécifiques des entreprises en matière de prise de décision a suscité une collaboration entre Jaspersoft et Talend pour offrir une solution d’intégration des données. En effet, les deux leaders de l’Open Source entre en partenariat pour donner naissance à un nouvel outil qui s’appelle JasperETL.\newline
+La dernière version stable est la 6.0.1, sortie en Mars 2016.
+\begin{description}
+	\item[\textbf{Extraction:}] 
+		Le logiciel de reporting Jaspersoft prend les informations d’une ou de plusieurs sources de données. Ces sources de données sont de types différents. On peut avoir des bases de données classiques, les fichiers CSV, des fichiers XML ou même encore plus loin avec  des Java Bean (via des Data sources).\newline
+		 Néanmoins, quelque soient leurs natures, l'outil Jasper aura pour fonction de les présenter dans un format remarquablement interactif et facile à consulter.\newline Ainsi, tout utilisateur reste informé de manière à pouvoir prendre les bonnes décisions.
+
+	\item[\textbf{Transformation:}] 
+	Le logiciel JasperETL donne la possibilité d'effectuer des opérations sur les données provenant des sources; on parle de phase de transformation.\newline
+	Ainsi, il offre une multitude de types de transformation, parmi lesquelles, celles de Talend Data Source Integrator. Cette similitude de fonctionnalités se traduit par le partenariat des deux outils Open Source.
+
+
+	\item[\textbf{Chargement:}]
+	\emph{"Talend est l’ETL utilisé par la solution JasperSoft (où il est renommé en JasperETL)."}\cite{misc1}\newline
+	D'après cette précédente assertion, nous pouvons en tirer qu'alors JasperETL a les mêmes fonctionnalités que Talend, quand il s'agit de l'intégration de données. Donc, ici pour voir les types de données qui interviennent pour le chargement, on fera simplement recours à la partie \emph{Chargement} de Talend, traitée tantôt.
+	
+\end{description}
+\textbf{Qu'en est-il des plateformes NoSQL ?} \newline
+
+Pour faire face aux données volumineuses de types natifs (NoSql), JasperSoft a lancé une gamme très vaste de logiciels qui vont permettre de prendre en charge les grandes quantités de données, en particulier pour les rapports du domaine de la BI.\newline En effet, JasperSoft a lancé une douzaine de connecteurs pour les données volumineuses. Par ailleurs, JasperSoft propose aussi des outils de reporting spécifiques pour l'interaction avec des bases de données Hadoop par exemple; et ceci via une interface qui s'appelle \emph{Hive SQL}.\cite{art1} Cette interface est capable de lire des fichiers via HDFS, mais aussi via Hbase.\newline
+Jaspersoft va encore plus loin pour offrir un support NoSQL pour presque toutes les catégories de systèmes de stockage de ce domaine :\newline
+ - Key Value Stores \newline
+ - Bases orientées documents \newline	
+ - Bases de données graphe.
+ 
+ 	D'autre part, JasperSoft s'ouvre à la rapidité de traitement des données du Big Data. En effet, pour gérer les besoins d'un environnement Big Data où des données doivent être traitées rapidement, il est devient possible. Le recours au SQL standard dans JasperSoft permet de rendre possible facilement les analyses de données en temps réel.\newline 
+ Dans ce cas-ci,\emph{le succès peut se jouer à quelques millisecondes.} comme le soutient Scott Jarr, PDG de VoltDB.
+ 
+ \subsubsection{Pentaho Data Integration}
+%\includegraphics[width=6cm]{images/pentaho.png}
+PDI (appelé aussi KETTLE) est un ETL Open Source qui permet aux utilisateurs de concevoir des opérations de manipulation et de transformation de données, et d’exécuter ces opérations. Son modèle graphique très intuitif permet de créer sans programmation des processus composés d’imports et d’exportations de données, mais aussi de différentes opérations de transformation (jointures, conversions, exécution de fonctions javascript etc…).
+Pentaho Data Integration est devenu Open Source à partir de sa version 2.2, et a très rapidement intégré la plateforme Pentaho, pour face face aux besoins décisionnels.
+Au moment où nous écrivons ces lignes, PDI est disponible sous sa version 7.0.
+\begin{description}
+	\item[\textbf{Extraction:}]
+		PDI extrait les données pour pouvoir effectuer des opérations là dessus. Pour ce cas de figure d'outil aussi, les données peuvent provenir de plusieurs types de sources différents (fichier excel, base de données oracle, base de données NoSql etc...).\newline
+		Une fois toutes ces données recueillies, l'utilisateur est libre d'y effectuer des transformations que ce soit en lecture ou en écriture.
+	\item[\textbf{Transformation:}]
+	Pentaho propose une très vaste panoplie de transformations. Ces dernières consistent en des traitements effectués au niveau d'une ou plusieurs bases de données comprenant des opérations de lecture, de manipulation et d'écriture. \cite{misc1} On peut en citer quelques unes: \newline
+	- Création d'opération de calcul\newline
+	- Concaténation de champs\newline
+	- Décomposition de champs\newline
+	- Tri de ligne\newline
+	- Remplacement de valeur d'un champ par constante etc ...\newline
+
+	\item[\textbf{Chargement:}]   
+
+	Pentaho prend en compte la gestion du format final voulu des données. Ainsi, il permet de faire aussi bien le transfert de fichiers que le transfert de données de base de données vers une autre base de données.\newline
+	PDI dispose d'un module appelé Agile BI. Ce module permet au développeur ETL de valider directement les données en sortant des rapports. Bien qu'il ne soit pas libre, il est mis à disposition gratuitement par Pentaho. Il est basé sur le nouveau client OLAP,  \emph{Pentaho Analyzer}.\newline
+	
+\end{description}
+\textbf{Qu'en est-il des plateformes NoSQL ?} \newline
+	Avec Pentaho, il est simple de gérer la diversité et les volumes croissants des données reçues par les entreprises. En effet, PDI fournit aux utilisateurs des données adaptées pour faire leurs analyses, en réduisant la durée de traitement et la complexité. Au lieu de faire recours à la programmation SQL en dur, ou à l’écriture MapReduce, les entreprises peuvent immédiatement exploiter leurs données, à partir de sources de données comme Hadoop. Ceci dit, les bases de données NoSQL sont bien gérées dans PDI. En effet, Pentaho offre une grande connectivité avec des données très diversifiées provenant de sources NoSQL comme MongoDB, Cassandra et HBase.\newline
+		PDI va même encore plus loin jusqu'à permettre le traitement à temps réel des données. En effet, on a la possibilité pour les développeurs de traiter l'analyse des Big Data en temps réel pour permettre aux entreprises de prendre des décisions rapides en fonction des données qui varient avec le temps. Ainsi, les entreprises sont capables de prendre des mesures pertinentes au bon moment.
+
+
+ \subsubsection{JEDOX Integrator}
+%\includegraphics[width=6cm]{images/jedox.png}
+Jedox est un grand éditeur de solutions décisionnelles. Il permet facilement aux utilisateurs de restituer l’ensemble des données de leur entreprise. Cet outil permet de construire des reporting complexes d’une interface gérée par l’outil Excel. Les tableaux de bord que fournit Jedox sont consultables sur différents supports (smartphone, tablettes) et ainsi diffusables auprès des collaborateurs de l’utilisateur.\newline
+Par ailleurs, d’un point de vue technique, Jedox se présente sous forme d’un ETL pour automatiser les extractions de données de différentes structures.
+La version actuelle de Jedox est la version 7.0.
+
+\begin{description}
+	\item[\textbf{Extraction:}]
+	Jedox Integrator (ETL) offre des fonctionnalités de transfert et d’extraction de données pour toutes les bases compatibles avec les drivers ODBC ou JDBC. Ceci est valable pour les fichiers plats, les services Web SOAP et presque tous les CRM et ERP.\newline
+	 
+
+	\item[\textbf{Transformation:}]
+	Pour Jedox, cette phase consistera à transformer les données pour le processus de chargement. Les données à transformer peuvent provenir de sources comme des fichiers textes, des bases de données relationnelles, des fichiers xml ou excel etc...\newline
+	On distingue plusieurs types de transformations telles que les transformations de tables, de champs et d'arbres.
+
+	\item[\textbf{Chargement:}]
+	Jedox permet le chargement des données prêtes, ayant éventuellement subies des transformations. Ainsi, il devient possible de procéder à un chargement de cube, de dimension, de fichier ou de base de données.\newline
+Par ailleurs, pour faire face aux contraintes de rapidité de traitement des données, Jedox a développé une version GPU de sa suite décisionnelle. Cette version est destinée à accélérer le traitement des fortes volumes de données. Concrètement, Jedox GPU s'appuie sur les cartes graphiques de Nvidia qui peuvent comporter jusqu'à 520 coeurs et 6 Go de RAM. Initialement conçues pour la vidéo, ces cartes permettent des calculs massivement parallèles, diminuant de manière très remarquable le temps de traitement des cubes OLAP. \cite{art3} 
+	
+\end{description}
+\textbf{Qu'en est-il des plateformes NoSQL ?} \newline
+Quant aux technologies du NoSql, il est possible avec Jedox d'utiliser un entrepôt de données Cassandra comme source de données aux cubes de cet outil. En effet, ce processus se fait grâce à un composant, le \newline{moteur MOLAP} Jedox, qui grâce à sa puissance d'agrégation et d'analyse, permet d'accéder au système de stockage de Cassandra.\cite{art2}
+
+
+
+\subsubsection{Clover ETL}
+%\includegraphics[width=6cm]{images/clover.jpg}
+Clover s’agit d’un framework Java qui comporte une licence aussi bien commerciale qu’Open Source. Le logiciel a presque les comportements quelque soit la version, mais la licence commerciale propose une garantie et du support. De plus, on a beaucoup moins de fonctionnalités en licence gratuite qu’en payante. La partie Open Source consiste en une panoplie de fonctions et une librairie de transformations.
+
+\begin{description}
+	\item[\textbf{Extraction:}]
+	L'outil Clover gère des données provenant de sources comme les bases de données relationnelles, les fichiers plats (CSV par exemple), etc...\newline
+	Le processus est presque pareil que dans la plupart des outils ETL Open Source, comme nous l'avons vu.\newline
+	En effet, CloverETL est compatible avec un grand nombre de sources et de destinations différentes pour les données : txt, csv, xls, json, xml, bases de données, système de fichiers Hadoop ...
+
+	\item[\textbf{Transformation:}]
+	Les transformations sur CloverETL sont un peu plus particulières par rapport à celles que nous avons vu jusque là. En effet, l'outil ETL Open Source peu permettre l'exécution des données depuis une ligne de commande shell script, mais à condition de redémarrer la machine virtuelle Java à chaque exécution.
+
+	\item[\textbf{Chargement:}]   
+	Pour le chargement de données, CloverETL dispose d'une connectivité nommée \emph{Fact Table Load} qui permet d'alimenter l'entrepôt de données. Tous les types de données utilisables pour la phase d'extraction sont aussi gérables pour le chargement de la Data Warehouse.
+	
+\end{description}
+\textbf{Qu'en est-il des plateformes NoSQL ?} \newline
+CloverETL est bien capable de gérer les gros volumes de données. En effet, il offre aux utilisateurs des connectivités sur n'importe quel type de sources à partir de fichiers texte et Excel, en passant aux services Web, jusqu'aux bases de données NoSQL. Par exemple, les connections avec MongoDB ou CouchDB. 
+				
+				\subsection{Tableau comparatif}
+				
+				\begin{table}[h]
+		\begin{center}
+					\begin{tabular}{|l|c|c|c|c|c|c|}
+					\hline
+					 &\multicolumn{6}{c|}{ETL Open Source}\\
+					\hline
+					Critères&Talend&Scriptella&JasperETL&Pentaho&Jedox&Clover\\
+					\hline
+					
+					\multirow{3}{1cm}{Installation} &&&&\textcolor{green}{simple}&& tout OS\\
+					&&  &  &Java 1.5 &  &JDK 7 \\
+					\hline
+					Documentation& & & &\textcolor{green}{Fr} &\textcolor{green}{Fr}& \\
+					\hline
+					\multirow{3}{2cm}{Traitements} &\textcolor{red}{Liés}&&&\textcolor{green}{séparés}&&\\
+					
+					&Détecte&  &  & Meta &  &  \\
+					&les relations &  &  & Data &  &  \\
+					& entre tables &  &  & Driven &  &  \\
+					\hline
+					\multirow{3}{2cm}{Req. SQL} &\textcolor{green}{Construction de}&&&&&\\
+					
+					& \textcolor{green}{requêtes facile}. &  &  &  &  &  \\
+					& Détecte les rela- &  &  &  &  & \\
+					& tions entre tables &  & &  &  & \\
+					
+					
+					\hline
+					\multirow{3}{2cm}{Interface} &\textcolor{green}{Intuitive}&\textcolor{red}{Pas de GUI}&&\textcolor{green}{SPOON}&\textcolor{green}{OUI}&greffon\\
+					& \textcolor{red}{Lourde}. &  & &  &Ergono & d'Eclipse.\\
+					& &  & &  && \textcolor{red}{Pas libre}\\
+				
+					
+					\hline
+					%Fonctionnalités payantes& \textcolor{red}{OUI} & & & & & \\
+					\multirow{2}{2cm}{Fonctionna-} &\textcolor{red}{OUI}&&&&&\\
+					lités payantes& &  & &  & &\\
+					
+					\hline
+					\multirow{3}{2cm}{Transformations} &\textcolor{green}{Possible de}&&&&&\\
+					& \textcolor{green}{les enregistrer}. &  &  &  &  &  \\
+					&sous forme&  &  &  &  &  \\
+					& de scripts &  &  &  &  &  \\
+					\hline
+					\multirow{3}{2cm}{Connecteurs} &\textcolor{green}{Plus de 400}&&\textcolor{red}{Limité}&&&\\
+					
+					& \textcolor{green}{connecteurs}. &  &  &  &  &  \\
+					&préconfigurés&  &  &  &  &  \\
+					\hline
+					\multirow{3}{2cm}{Simplicité} &&\textcolor{green}{Connaissance de}&&&&\\
+					& & \textcolor{green}{de SQL unique}& &  &  &  \\
+					&& suffit&  &  &  &  \\
+					\hline
+					
+					\end{tabular}
+			\end{center}
+			\caption{Tableau comparatif des outils ETL}
+			\end{table}
+			
+							\subsection{Choix}
+			Ce précédent tableau comparatif des outils ETL a été conçu dans le but de pouvoir faire un filtrage. Son objectif n'est pas de voir en détails tous les caractéristiques d'un outil ETL, sachant que la liste est très longue et non exhaustive. Ainsi, nous allons choisir deux outils parmi ceux qui sont dans le tableau, pour y effectuer une étude beaucoup plus détaillée. Tous les exemples ou expériences qui seront évoqués dans la suite de ce document seront basés sur ces deux outils choisis.\newline
+			 En fin de compte, ce sont les ETL suivants qui sont choisis: \emph{Pentaho} et \emph{Talend}.
+			\subsubsection{Argumentations:}
+			Notre choix repose bien évidemment sur des critères de sélection déterminés. En effet, c'est après plusieurs recherches et études que nous sommes parvenus à prendre part pour les ETL vu jusqu'ici.\newline
+			La plupart des outils ETL, reposent sur d'autres ou même, peuvent être considérés comme des modules développés par d'autres plateforme plus complets et plus connus. A titre d'exemple, nous voyons le cas de JasperETL qui est complètement basé sur la technologie phare d’intégration de données de Talend.\cite{misc2} Donc, on peut dire que JasperETL présente exactement les principes de développement et de gestion des données de Talend; ainsi choisir Talend revient à choisir les fonctionnalités de Jasper.\newline
+			Par ailleurs, l'interface graphique des utilisateurs reste un point très important qui a dû conditionné notre choix. En effet, bien certains outils ETL comme Scriptella permettent de faire des transformations avec du code, ceci reste un barrage pour les utilisateurs qui ne seraient pas des développeurs.\newline
+			Aussi, l'implémentation de connecteurs pour gérer des données nosql nous a remarquablement influé sur notre choix. Cela permettra une ouverture de perspectives pour allier les processus ETL et le Big Data.\newline
+			De plus, la documentation sur internet est sans doute plus riche en ce qui concerne Pentaho et Talend, par rapport aux autres outils.\newline
+			
+			\section{L'analyse des données Big Data}
+	Une fois les données présentes dans le Data Warehouse, l'entreprise doit pouvoir les consulter et les analyser avec plus de précision possible. Pour ce faire, il existe plusieurs types d'analyses des données, qui sont différentes selon leur apport en informations. Nous n'allons pas toutes les voir, mais évoquerons les principales ou bien celles qui sont les plus utilisées.\newline
+				\subsection{Les méthodes d'analyse}
+	\begin{itemize}
+		\item L'analyse par exploration ou \emph{Data Mining}: \newline
+		Le principal but de cette méthode est de permettre de trouver des structures originales et des corrélations informelles entre les données d'un Datasmart ou d'un entrepôt. Avec cette méthode, une entreprise comprend mieux les liens existant entre des phénomènes. Par ailleurs, le Data Mining permet aussi d'anticiper sur des solutions encore peu identifiables. \newline
+		\item La méthode d'estimation et de prédiction ou \emph{machine learning}: \newline
+		Cette méthode garde toute son importance au sein d'une entreprise, puisqu'elle permet de fidéliser ses clients, et ainsi de gagner un maximum de la part du marché. L'analyse prédictive permet de mieux identifier les besoins primordiales des clients afin de les modéliser et d'anticiper au mieux leur satisfaction\newline
+		Le domaine d'application de cette méthode concerne principalement les applications de CRM, mais aussi les compagnies d'assurance et le secteur de la banque pour bâtir les scoring crédits, affiner la mesure de risques et la prévention des fraudes. \newline
+		\item L'analyse multidimensionnelle: \newline
+		Cette façon d'analyser les données permet aux clients d'analyser leurs données opérationnelles et stratégiques sous des angles et axes multiples. Ainsi, ils peuvent sélectionner des données selon des dimensions multiples et valider des décisions ou vérifier des tendances.		
+	\end{itemize}
+
+	\section{Des solutions intégrées}
+	Les solutions intégrées sont des solutions logicielles complètes qui peuvent résoudre de multiples problèmes. Dans notre cas précis, ce sont des solutions qui permettraient de gérer aussi bien la partie ETL que la partie d'analyse des données.\newline
+	Jusque là, nous avons pu voir différents outils ETL, permettant d'assurer l'extraction des données et leur traitement ou transformation afin de permettre une éventuelle analyse de l'utilisateur. Par ailleurs, nous avons pu voir qu'il y en avait certains outils limités en ce qui concerne les types de données à prendre en charge. Plus précisément, le traitement des données du Big Data n'est pas assuré par tous les ETL. \newline
+	Dans cette partie, nous traiterons des solutions intégrées, pouvant également gérer des données de type NoSQL; et ceci, aussi bien dans l'extraction des données que dans la phase d'analyse.
+	
+	\subsection{Pentaho et ses composants pour le Big Data}
+	Pentaho offre une plateforme complète pour l'intégration des données et l'analytique. Par le biais de cette plateforme, les utilisateurs de Pentaho peuvent tirer profit plus rapidement de tout type de données, y compris les Big Data.\newline
+	En effet, la solution intégrée fournit à tout type d'utilisateur intéressé par les projets Big Data, des outils graphiques de développement basés sur Drag and Drop. De plus, les développeurs peuvent avoir accès à un environnement de conception visuel très complet, simplifiant et optimisant la préparation de la modélisation des données.\newline
+Pour les analystes et experts de données, Pentaho offre des fonctions de visualisation et d'exploration, en faisant appel à des outils complets de recherche et d'exploration de données. \newline
+\begin{figure}
+\begin{center}
+	\includegraphics[width=15cm]{images/solutionsCompletesPentaho.png}
+\end{center}
+\caption{Les composants Big Data de Pentaho}
+\end{figure}
+\newpage
+
+\subparagraph{Instaview \newline}
+\emph{Instaview} est une application d'analyse du Big Data.
+Afin de pouvoir offrir les meilleures condition d'analyser les données, la solution intégrée accélère et facilite énormément l'extraction des informations stratégiques à partir de gros volumes de données de toutes sortes. \newline
+Ainsi, par le biais d'Instaview, on peut automatiser la préparation et la modélisation des sources de type Big Data pour une exploration et une visualisation très claire des données.
+\begin{figure}[!h]
+\begin{center}
+		\includegraphics[width=15cm]{images/instaViews.png}
+\end{center}
+\caption{Fonctionnement Instaview}
+\end{figure}
+\newpage
+
+\textbf{Source et distribution Big Data prises en charge \newline}
+Pentaho prend en charge un grand nombre de sources Big Data. En effet, il permet de gérer aussi bien les bases de données Hadoop et NoSQL, mais aussi les bases de données analytiques à hautes performances.\newline
+Grâce à sa connectivité native, les utilisateurs de la solution intégrée de Pentaho peuvent tirer parti des fonctionnalités uniques et spécifiques à chaque source Big Data. Ceci a pour but de fournir un accès plus rapide et de meilleures performances d'analyse.\newline
+\textbf{Hadoop \newline}
+En général, l'intégration de données Hadoop constitue une problématique pour les équipes informatiques. Ceci dit, ces équipes doivent adopter de nouvelles démarches incluant les nouvelles technologies, ou bien trouver des développeurs expérimentés pour intégrer Hadoop à leurs systèmes d'exploitation et Dataware Houses existants.\newline
+Sur cette lancée Pentaho survient pour aider les équipes à manager les transformations complexes des données, mais aussi leur permet de procéder à une exploitation rapide de Hadoop sur un pipeline de données. \newline 
+Par ailleurs, Pentaho permet une intégration simple et puissante des données Hadoop en vue d'une parfaite maîtrise. Peu importe le type d'utilisateur en question (architecte de solution, analyste de données ou administrateur Hadoop), la solution intégrée propose une puissance indispensable et une grande agilité:
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=9cm]{images/pentahoHadoop.png}
+\end{center}
+\caption{Pentaho: intégration d'Hadoop}
+\end{figure}
+\begin{itemize}
+	\item Une interface visuelle et intuitive: permettant d'intégrer et de croiser les données de type Hadoop avec toutes les autres sources; en l'occurrence les bases de données relationnelles, le NoSQL etc ...
+	\item Conception de tâches MapReduce beaucoup plus rapide qu'avec une technique par programmation manuelle.
+	\item Parfaite automatisation qui permet d'accélérer l'intégration de milliers de sources de données variées et qui ont tendance à changer, dans Hadoop.
+	\item Prise en charge de Map-Reduce tout en offrant une portabilité optimale des tâches et des transformations entre les plateformes Hadoop.
+\end{itemize}
+ 
+ \textbf{NoSQL \newline}
+ La solution intégrée Pentaho, par le biais de Pentaho Business Analytics fournit aux utilisateurs des outils de développement très facile à utiliser. De plus, elle offre aussi une grande analyse de données afin que les utilisateurs puissent préparer, modéliser, visualiser et explorer des ensembles de données stockées au niveau de bases de données NoSQL telles que Hbase, MongoDB et Cassandra.
+ \begin{itemize}
+ 	\item Préparation et modélisation des données NoSQL, un bon visuel: \newline
+ 	Avec les outils de développement visuel de Pentaho, on réduit considérablement le temps nécessaire à la conception et au déploiement des solutions d'analyse NoSQL; contrairement aux approches traditionnelles d'ETL(s).
+ 
+ \begin{description} 
+\item[Une puissante interface utilisateur visuelle] qui permet d'intégrer et de manipuler les sources NoSQL; mais aussi facilite l'enrichissement des données contenues dans ces sources via une intégration de références provenant d'autres sources.
+
+\item[Facilité d'accéder à des données NoSQL:] accès se faisant soit directement, soit en extrayant des entrepôts optimisés pour des requêtes d'agrégation.
+
+\item[Préparation des données pour analyse: ]Pentaho offre un outil visuel pour définir des modèles de méta-données pour aider les développeurs à préparer leurs données pour les prochaines phases d'analyse. 
+\end{description}
+
+\item Parfaite prise en charge des bases de données NoSQL \newline
+La solution intégrée pour la gestion des bases de données NoSQL comprend les technologies citées ci-dessous.
+
+
+\begin{description} 
+
+\item[DataStax:] qui assure l'alimentation de grandes applications de données transformant ls entreprises et améliorant ainsi profondément les expériences client grâce à la base de données NoSQL Apache Cassandra.\newline
+Pentaho et DataStax ont formé une alliance stratégique en vue d'offrir une intégration native entre PDI (ex Kettle) et Cassandra. \cite{art4}
+
+
+\item[Cassandra:] son implémentation dans Pentaho permet à la solution intégrée d'assurer une gestion automatique des répliques des données et de la tolérance aux pannes. Par ailleurs, on assure aussi pour les utilisateurs, l'exécution des opérations de données à faible latence à des taux très élevés.  
+
+\item[Hbase:] système de gestion de base de données non-relationnelles distribué qui dispose d'un stockage structiré pour des grandes tables. Hbase fournit la possibilité d'avoir dans PDI, des accès en temps réel, aussi bien en lecture qu'en écriture, aux données de Hadoop.
+	
+\item[MongoDB:] avec ces types de bases de données, Pentaho propose la première solution analytique de bout en bout. En effet, de la phase d'ingestion des données à l'analyse \emph{ad hoc}, la solution PDI parvient à répondre à toutes les demandes de données pour une vue analytique à 360 degrés des entreprises et des clients \cite{misc6}.
+
+\item[HPCC Systems:] une plate-forme informatique open source destinée au traitement et à l'analyse des données.\newline
+Elle présente un ensemble de plugins pour PDI afin d'y rendre le développement des technologies du Big Data très simple; le Drag end Drop par exemple.
+\end{description}	
+ \end{itemize}
+	\subsection{Talend Open Studio, l'intégration du Big Data}
+En voilà un autre outil considéré comme solution intégrée à part entière. Talend Open Studio propose en plus de la gestion de l'intégration des données, une analyse parfaite de ces dernières, par le biais de différents outils.\newline
+Talend met l’analyse de données à la portée de toute l’entreprise. En effet, on note la sortie récente d'une nouvelle plateforme appelée \emph{Data Fabric}. Une plateforme puissante mise sur le marché de l'intégration des données en 2016.
+Celle ci est conçue pour répondre à des besoins d'intégration des utilisateurs.
+Elle permet aussi de réduire de plusieurs heures de travail; notamment dans les processus de collecte et d’analyse de données. De ce fait, la prise de décision est accélérée. \newline 
+Par ailleurs, l'intégration des technologies du Big Data est aussi prise en charge par Talend. Il est possible d'utiliser les bases de données Hadoop et NoSQL par le biais d'outils et d'assistants graphiques simple pour la génération de codes natifs.\newline
+La plateforme \emph{Talend Big Data Integration} permet un traitement des données en mémoire rapide; traitement qui est aussi très performant.
+\begin{itemize}
+		\item Spark et Hadoop pour une rapidité remarquable: \newline
+		Tandis que Hadoop a offert une solution pour la collecte et le stockage de gros volumes de données, Spark assure la rapidité et l'évolutivité nécessaires pour traiter ces données. \newline
+		La solution Talend Big Data Integration tire pleinement parti de l'environnement parallèle d'Hadoop et de la génération de code natif Spark et MapReduce. En effet, on peut optimiser la puissance et l'évolutivité  d'Hadoop dans les phases d'intégration, de traitement et de nettoyage des données. \newline
+		
+		\item Une plateforme unifiée:
+		Talend représente la première plateforme d'intégration Big Data basée sur Apache Spark et Hadoop. Avec l'assemblage Apache Spark, Spark Streaming et Apache Hadoop, on est en mesure de faire toutes les opérations nécessaires avec des bases de données NoSQL.
+		%\begin{center}
+			%\includegraphics[width=12cm]{images/sparkHadoopUnifie.png}
+		%\end{center} \newpage
+		
+		\begin{description}
+				\item[L'exécution des jobs:] devient 5 fois plus rapide qu'avec MapReduce \cite{misc7}; d'où l'obtention de résultats en temps réel.
+				
+				\item[Des connecteurs et composants optimisés:] pour une exécution performante des jobs, et sans paramétrage manuel de Spark, Talend combine l'analyse en mémoire et les composants de mise en cache. 
+				
+				\item[Du graphique pour gérer les jobs:] les outils visuels de Talend permettent de créer des jobs Spark d'une manière assez rapide; ensuite de les exécuter sur Hadoop d'une manière autonome.
+				
+				\item[Un seul clic] pour convertir des jobs MapReduce en jobs Spark.
+		\end{description}	
+		
+		\item Accès et nettoyage des Big Data: \newline
+		Tous les utilisateurs ont la possibilité d'accéder aux Big Data et les nettoyer tout en gouvernant leur utilisation. Talend offre aux entreprises une nouvelle façon de transformer les données en décisions en unifiant la préparation des données et leur intégration aux Big Data. Ainsi, les experts en données définissent les règles d'intégration alors que les services informatiques se charge de la gouvernance des données. \newline
+		
+		\item Extension de la performance des technologies Big Data: \newline
+		 Les processus Big Data peuvent être exécutés dans le cloud, et cela dans les meilleures conditions qui soient possibles. En effet, l'exécution se fait avec un délai de réponse optimal et une latence, en sollicitant au minimum les ressources. \newline
+\end{itemize}
+
+
+ \textbf{Une solution Big Data enrichie \newline}
+ Avec le support des principales bases de données NoSQL, Talend enrichit sa solution de Big Data. En effet, des plate-formes NoSQL sont supportées et alors Talend livre un ensemble de connecteurs spécifiquement dédiés à MongoDB, Hbase et Cassandra.\newline 
+ \begin{itemize}
+ 	\item Cassandra: offre à Talend une évolutivité et permet d'avoir une tolérance aux pannes sur du matériel standard ou au niveau d'une infrastructure cloud; ceci permet de soutenir les données critiques.\newline
+ 	Par ailleurs, Talend permet d'intégrer facilement une source de données Cassandra, données à intégrer et à transformer en temps réel ou simplement par lots.\newline
+ 	
+ 	\item Hbase: Talend permet de se connecter dans une base de données Hbase et de pouvoir transférer ces données en son sein. Grâce aux composants standards et à ses assistants de configuration de source de données, Talend offre une intégration très facile. \newline
+ 	
+ 	\item MongoDB: aide Talend à traiter les grandes données plus rapidement.\newline 
+ 	Pour assurer sa bonne utilisation, Talend met en place une solution logicielle qui permet aux développeurs de travailler sans pour autant avoir besoin de nouvelles compétences ou d'être formés sur les grandes technologies de données de MongoDB. 	 	
+ \end{itemize}
+ 
+ \section{Les données streaming}
+ Le streaming data peut être vu comme un mécanisme qui permet de mettre à jour régulièrement les données, et cette mise à jour se fait à temps réel.\newline 
+ Ainsi, les entrepôts de données subissent constamment des opérations en vue d'améliorer leur état. En général, le streaming data est utilisé dans les applications qui nécessitent un système de notification continu, ou à temps réel.\newline
+Par ailleurs, les données en streaming fournissent aux entreprises des informations avec des données clé qui améliorent la visibilité d'une entreprise. Cette amélioration peut toucher les activités client ou business.\newline
+Il faut noter que certaines solutions ETL offre l'intégration des données de types streaming. Notamment parmi ceux dont nous avons vu jusque là. Prenons le cas de Pentaho.
+
+
+\textbf{Pentaho: }
+Afin de permettre aux utilisateurs de profiter pleinement de la valeur des projets Big Data et des données en streaming, Pentaho met en place une certaine politique. Cette dernière consiste à coordonner, réutiliser et à gérer des technologies Spark en offrant de facilité et de flexibilité. Une des technologies est justement, \emph{Spark Streaming}. Grâce à ce module, il est possible de traiter des flux de données provenant de sources et arrivant en continu. \newline
+Comme on parle de sources, il est important de préciser que ces dernières doivent subir un choix adapté. En effet, avec Spark Streaming, on aura tendance à choisir des sources de données qui puissent ouvrir une socket réseau tout en restant en écoute.\newline 
+Exemple de source de données typique: \emph{Twitter} qui est facile à exploiter puisque les tweets sont produit en instantané.
+
+
+\textbf{Talend: }
+Il faut noter que Talend aussi présente une solution pour la gestion des données streaming. En effet, le logiciel intègre un modèle de programmation unifié permettant d'exécuter un nombre important de pipelines de flux de données en continu; on parle du projet \emph{Apache Beam}.\newline
+La combinaison de Talend et de Apache Beam est mise en place afin d'apporter une aide remarquable aux entreprises. Ce projet aide les entreprises sur l'accélération de la prise de décision en permettant aussi aux utilisateurs d'exécuter leurs projets de données sur la panoplie des technologies liées au traitement de données.\newline
+Par ailleurs,Talend offre la possibilité de travailler avec Spark Streaming à l'aide d'un processus simplifié. En effet, la solution intégrée facilite l'intégration de données en temps réel pour les analyses avancées, pour ensuite générer un code natif nécessaire pour utiliser les fonctionnalités de Spark.
+
+
+\chapter{Approche pratique}
+L'informatique décisionnelle permet de sélectionner des informations opérationnelles qui s'avèrent être pertinentes pour l'entreprise. Ces dernières sont par la suite normalisées pour alimenter un \emph{entrepôt de données}; d'où la naissance de la notion de \emph{modélisation multidimensionnelle}.\newline
+La modélisation multidimensionnelle est fondamentale pour répondre aux exigences de rapidité et de facilité d'analyse. En d'autres termes, elle rend les données d'un entrepôt  lisibles, cohérentes et faciles d'accès.\newline
+Ainsi, le décisionnel doit produire des indicateurs et des rapports destinés aux analystes. De la même manière, il doit proposer des outils de navigation des données, d'interrogation et de visualisation de l'entrepôt.
+\section{L'intégration de données: entrepôt de données}
+L'intégration de données consiste en tous les processus dans lesquels les données provenant de différentes sources sont déplacées, combinées et consolidées. En d'autres termes, ces processus concernent l'extraction des données de leurs sources (bases de données, fichiers, emails etc...) et l'envoi vers de systèmes cibles.\newline
+Pour accueillir toutes les données des différentes sources, il faut faire usage à des des entrepôts de données. L'entrepôt de données doit rendre accessibles les informations d'une entreprise. C'est à dire que le contenu de l'entrepôt doit être aussi bien compréhensible que l'utilisateur puisse naviguer facilement et avec rapidité. \newline
+Par ailleurs, l'entrepôt de données doit constituer une base de décision pour l'entreprise; il détient en son sein des informations aptes à faciliter la prise de décisions.\newline
+
+\subsection{Construction d'un entrepôt de données}
+
+Pour mettre en place un entrepôt de données, il va falloir passer par différentes étapes. Parmi ces dernières, la principale consiste en la recherche de différentes données à extraire à partir des sources disponibles. Les données choisies sont ensuite stockées dans une zone temporaire que l'on nomme \emph{staging area}. La finalité de ces données est d'être transformées (ou nettoyées) afin de:
+\begin{itemize}
+	\item supprimer les données incohérentes
+	\item homogénéiser les unités de mesure, les format (de date par exemple)
+	\item regrouper les données similaires etc ...
+\end{itemize}
+Après toutes ces précédentes phases, les données sont transférées vers l'entrepôt pour de futures exploitations. \newline 
+Ce sont les outils ETL qui permettent de mener à bien ces différentes étapes.
+
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=10cm]{images/entrepot.png}
+\end{center}
+\caption{Architecture d'un entrepôt}
+\end{figure}
+\subsection{Environnement de travail}
+Il est primordial de préciser les caractéristiques de l'environnement sur lequel nous réaliserons toutes les expériences de ce document. En effet, pour faire une comparaison d'outils, il faut placer ces derniers sous les mêmes conditions afin de s'assurer une interprétation qui soit le plus rationnelle possible.\newline
+Nous travaillons donc sur un environnement \emph{Macintosh} avec les caractéristiques suivantes:\newline
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=10cm]{images/apercuCaracteristik.png}
+\end{center}
+\caption{Caractéristiques environnement de travail}
+\end{figure}
+\subsection{Intégration de données Pentaho}
+Nous allons nous baser sur un petit exemple pour traiter en pratique sur comment intégrer des données sur Pentaho, en passant par la définition d'un exemple de source données. Ici, nous choisirons une source de type BDDR (Base de Données Relationnelle), que l'on utilisera pour alimenter l'entrepôt de données Pentaho. La base de données utilisée s'agit de Oracle. Nos tables de référence ou tables sources ont déjà été alimentées de milliers de lignes, 5000 pour être précis. En effet, un script SQL a été créé et via une procédure stockée, nous avons rempli facilement nos tables de base de données.
+
+
+\textbf{\emph{Caractéristiques logiciel et environnement d'expérience:}}\newline
+Nous utilisons la version 7 PDI (Pentaho Data Integration). \newline
+\begin{itemize}
+\item Mémoire utilisée de l'outil:\newline nous travaillons sous une utilisation d'une mémoire de 1 GO à peu près.\newline  \includegraphics[width=13cm] {images/pentaho/caracMemoire.png}
+\item CPU: \newline L'utilisation en CPU qui est en rapport avec le processeur est de 1,6\%\newline  \includegraphics[width=13cm]{images/pentaho/caracCPU.png}
+\end{itemize}
+
+\textbf{Contexte:}\newline 
+Supposons le cas de clients d'un marché, qui achètent des produits. Chaque client a la possibilité d'acheter un ou plusieurs produits, et en retour un produit n'est acheté que par un client au maximum. Voici le modèle conceptuel de notre base de données:
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=13cm]{images/mcd.png}
+\end{center}
+\caption{Modèle conceptuel de données, source BDDR}
+\end{figure} \newline
+Du modèle ci-dessus, découle le modèle logique de données suivant, mettant en valeur les migrations de clefs étrangères:\newline
+\begin{center}
+\textbf{CLIENT} (\textbf{client\_ id}, client\_ city, client\_ country, client\_ continent) \newline
+\textbf{PRODUCT}(\textbf{product\_ id}, \emph{\# client\_ id}, product\_ name, product\_ category)
+\end{center}
+Une fois les tables de la base de données relationnelle créées et mises en place, l'entrepôt de données est prêt à être peuplé. Pour ce faire, il faut avoir à disposition d'autres tables qui sont les dimensions et la table de fait.\newline 
+La table de fait peut être considérée comme une table centrale dans la topologie de notre base relationnelle. Elle est en lien direct avec les différentes dimensions par le biais de clefs étrangères, et contient aussi les mesures à calculer.\newline
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=14cm]{images/tableDeFait.png}
+\end{center}
+\caption{Modèle de base avec table de fait}
+\end{figure}
+\newpage
+Nous allons passer à la pratique en montrant comment Pentaho gère les différentes phases d'extraction, de transformation et d'insertion des données émanant de notre base de données relationnelle Oracle.\newline 
+\begin{itemize}
+	\item Extraction des données \newline
+	\begin{multicols}{2}
+Pentaho intègre la gestion de plusieurs types de sources pour extraire des données. Ce qui définit une des forces de cette suite logiciels. NOus voyons bien la liste des sources sur lesquelles, des données peuvent provenir: fichiers, tables, cubes etc...\newline
+Dans notre cas, nous extrairons nos données à partir de tables de base de données. Ce processus permet dans un premier temps d'avoir à disposition au niveau de Pentaho, toutes les informations de la source concernée, afin de pouvoir les utilisées pour une future alimentation des dimensions de l'entrepôt de données. (Etape que l'on verra juste après). 
+\includegraphics[width=6cm]{images/typesSourcesPentaho.png}
+\end{multicols}
+
+	\item Le nettoyage des données extraites: \newline 
+	Une fois les tables sources choisies au niveau de la base de données relationnelle, Pentaho offre la possibilité de nettoyer les données extraites avant leur insertion dans des cibles. Notamment, ici nous verrons le cas de la définition de correspondances entre sources et cibles.\newline
+	Dans notre exemple, si l'on prend le modèle logique de la table \emph{Product}, on note l'ajout d'une clé étrangère faisant référence à la table \emph{Client}. Ainsi, pour faire le mapping des attributs entre table et dimension, il y en aura de trop, qui est cette précédente clé étrangère.\newline
+	Heureusement, Pentaho nous permet de procéder à une mise en correspondance des attributs, afin de rester cohérent sur notre modèle.
+	\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=12cm]{images/transformation.png}
+	\end{center}
+		\caption{Pentaho: Mapping des attributs}
+	\end{figure}
+	\newline
+	\item Insertion des données dans nos dimensions:\newline
+	Une fois les données nettoyées à notre guise, il devient très simple d'alimenter nos dimensions. Néanmoins, le processus d'insertion est plus coûteux en temps, comparé à celui d'extraction. \newline 
+	La figure ci après permet de voir que tout le processus ETL de notre modèle d'exemple a bien été exécuté, avec des informations plus poussées concernant les vitesses d'exécution, le nombre d'enregistrement lus, écrits etc ... \newline
+		\begin{figure}[!h]
+	%\begin{center}
+		\includegraphics[width=18cm]{images/pentaho/exec1Pentaho.png}
+	%\end{center}
+		\caption{Pentaho: 1ère Exécution et mesures de temps de charge - 5000 enregistrements}
+	\end{figure}
+	\newline
+	Nous avons eu à alimenter notre base de données relationnelle avec des milliers d'enregistrements, afin de mieux suivre les mesures de temps de charge. Dans notre cas précis, on trouve 5000 enregistrements que l'outil ETL devra lire et alimenter l'entrepôt de données en fonctions de ces dernières lignes.\newline
+	Ceci n'est qu'une première exécution. Pour pouvoir retenir les valeurs que nous utiliserons au moment de la comparaison avec Talend, on procédera à trois exécutions, puis nous prenons le moyenne de ces exécutions précédentes.
+	Voici les exécutions supplémentaires, basées sur le même schéma et sur les mêmes données: \newpage
+			\begin{figure}[!h]
+	%\begin{center}
+		\includegraphics[width=18cm]{images/pentaho/exec2Pentaho.png}
+	%\end{center}
+		\caption{Pentaho: 2ème Exécution et mesures de temps de charge - 5000 enregistrements}
+	\end{figure}
+			\begin{figure}[!h]
+	%\begin{center}
+		\includegraphics[width=18cm]{images/pentaho/exec3Pentaho.png}
+	%\end{center}
+		\caption{Pentaho: 3ème Exécution et mesures de temps de charge - 5000 enregistrements}
+	\end{figure}
+	\newpage
+	A ce stade, nous reprendrons les mêmes expériences, mais seulement en changeant la taille de la base de données. C'est à dire en augmentant le nombre d'enregistrements dans chaque table.\newline
+	\textbf{Des tables de 10 000 enregistrements}\newline
+	 		\begin{figure}[!h]
+	%\begin{center}
+		\includegraphics[width=15cm]{images/pentaho/dixMilleLigne/exec1Pentaho.png}
+	%\end{center}
+		\caption{Pentaho: 1ère Exécution et mesures de temps de charge - 10 000 enregistrements}
+	\end{figure}
+	
+		 		\begin{figure}[!h]
+	%\begin{center}
+		\includegraphics[width=15cm]{images/pentaho/dixMilleLigne/exec2Pentaho.png}
+	%\end{center}
+		\caption{Pentaho: 2ème Exécution et mesures de temps de charge - 10 000 enregistrements}
+	\end{figure}
+	
+		 		\begin{figure}[!h]
+	%\begin{center}
+		\includegraphics[width=15cm]{images/pentaho/dixMilleLigne/exec3Pentaho.png}
+	%\end{center}
+		\caption{Pentaho: 3ème Exécution et mesures de temps de charge - 10 000 enregistrements}
+	\end{figure}
+\end{itemize}
+
+\newpage
+Le tableau ci-dessus est une synthèse résumant l'ensemble des résultats de nos expériences, et montrant la moyenne que nous retiendrons à l'issue des 3 exécutions de chaque typologie de table (les tailles). Ce sont les chiffres concernant la table PRODUCT \newline
+	\begin{table}
+				\begin{center}
+					\begin{tabular}{|c|c|c|c|c|}
+					\hline
+					 &\multicolumn{4}{c|}{\textbf{Temps de charge}}\\
+					\hline
+					\textbf{Taille des tables}&1ère exec&2ème exec&3ème exec&Moyenne\\
+					\hline
+					\multirow{1}{2cm}{5000 lignes}&0.8 sec&2.2 sec&0.5 sec&\textbf{1.16 sec} \\
+					10 000 lignes&2.8 sec&2.1 sec&1.2 sec&\textbf{2.03 sec}\\
+					& & & &\\
+					\hline	
+					\end{tabular}
+					\end{center}
+					\caption{Tableau synthétique des temps de charge PENTAHO}
+					
+	\end{table}
+
+\subsection{Intégration de données Talend}
+
+\textbf{\emph{Caractéristiques logiciel et environnement d'expérience:}}\newline
+Nous utilisons la version 6.3.1 de TOS (Talend Open Studio) for Integration. \newline
+\begin{itemize}
+\item Mémoire utilisée de l'outil:\newline nous travaillons sous une utilisation d'une mémoire de moins de 1 GO.\newline  \includegraphics[width=13cm] {images/talend/caracMemoire.png}
+\item CPU: \newline L'utilisation en CPU qui est en rapport avec le processeur est de 0,8\% du processeur de la machine sous laquelle les expériences sont faites.\newline  \includegraphics[width=13cm]{images/talend/caracCPU.png}
+\end{itemize} 
+
+
+Pour un même modèle de données que celui étudié avec l'ETL Pentaho, utilisons à présent Talend.\newline
+L'expérience consistera à créer toutes les tables qui nous seront nécessaires pour l'intégration de données par Talend Open Studio ETL. En effet, la création de tables sous oracle est faite dans une étape préalable, et nous permet d'avoir une source de données déjà prête. Ceci dit, il ne reste plus qu'à alimenter notre entrepôt de données pour ensuite mesurer les temps de réponse ou de charge que permet de faire via cet ETL.\newline
+	\begin{multicols}{2}
+Aussi bien que Pentaho, la solution intégrée de Talend offre aussi une gestion de plusieurs types de sources, dans le but d'étendre son domaine d'application pour l'intégration des données. Dans notre cas, nous travaillons avec une source Oracle contenant des tables. Pour pouvoir ainsi extraire des informations émanant de ces tables, il sera nécessaire de créer une connexion sur laquelle tous les schémas vont être définis.\newline
+C'est par le biais de cette précédente étape que devient possible de choisir les tables qui nous concernent (PRODUCT, CLIENT), les dimensions de l'entrepôt à alimenter etc ... \newline
+Retenons donc que la notion de connexion est ici très importante parce que c'est la seule phase qui permet de spécifier à l'outil, où il doit aller chercher nos informations.
+\includegraphics[width=6cm]{images/talendTools.png}
+\end{multicols}
+Une fois que tout l'environnement est bien mis en place et que les bonnes sources de données sont ciblées, il devient logique de passer à la phase d'alimentation du DW.\newline
+A ce stade, la source Oracle, en l'occurrence les tables \emph{Produit} et \emph{Client}, contiennent chacune 5000 enregistrements. Notre objectif serait de s'assurer que l'outil ETL parvienne à récupérer toutes les ces lignes et à alimenter les dimensions avec. La figure ci-après montre la réalisation de ce processus et quelques mesures d'exécution.
+\newpage
+		\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=12cm]{images/talend/exec1Talend.png}
+	\end{center}
+		\caption{Talend: 1ère exécution et mesures de temps de charge - 5000 enregistrements}
+	\end{figure} 
+	Nous suivrons le même procédé qu'au niveau de la partie Pentaho. C'est à dire que bien évidemment, nous ne nous contenterons pas que de cette exécution. Pour retenir des valeurs à comparer, voici deux autres résultats sur lesquels, sont marqués les temps de charge de chaque phase.
+	
+			\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=12cm]{images/talend/exec2Talend.png}
+	\end{center}
+		\caption{Talend: 2ème exécution et mesures de temps de charge - 5000 enregistrements}
+	\end{figure} \newpage
+			\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=12cm]{images/talend/exec3Talend.png}
+	\end{center}
+		\caption{Talend: 3ème exécution et mesures de temps de charge - 5000 enregistrements}
+	\end{figure}
+	
+	Comme fait avec Pentaho, reprenons les mêmes expériences tout en augmentant la taille de la base de données, 10 000 lignes dans ce cas précis\newline
+	\textbf{Des tables de 10 000 enregistrements}\newline
+			\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=12cm]{images/talend/dixMilleLigne/exec1Talend.png}
+	\end{center}
+		\caption{Talend: 1ère exécution et mesures de temps de charge - 10 000 enregistrements}
+	\end{figure} \newpage
+	
+				\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=12cm]{images/talend/dixMilleLigne/exec2Talend.png}
+	\end{center}
+		\caption{Talend: 2ème exécution et mesures de temps de charge - 10 000 enregistrements}
+	\end{figure}
+	
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=12cm]{images/talend/dixMilleLigne/exec3Talend.png}
+	\end{center}
+		\caption{Talend: 3ème exécution et mesures de temps de charge - 10 000 enregistrements}
+\end{figure}
+Plusieurs expériences sont réalisées en fonction des nombres d'enregistrements dans chaque table de la base de données. Ainsi, pour avoir une meilleure vue des chiffres, nous allons regrouper l'ensemble des temps de charge de chaque exécution et calculer la moyenne comme nous l'avions prévu. C'est le chargement de la table PRODUCT qui est considéré au niveau du tableau suivant.\newpage
+
+			\begin{table}
+				\begin{center}
+					\begin{tabular}{|c|c|c|c|c|}
+					\hline
+					 &\multicolumn{4}{c|}{\textbf{Temps de charge}}\\
+					\hline
+					\textbf{Taille des tables}&1ère exec&2ème exec&3ème exec&Moyenne\\
+					\hline
+					\multirow{1}{2cm}{5000 lignes}&3.3 sec&4.36 sec&5.15 sec&\textbf{4.27 sec} \\
+					10 000 lignes&6.65 sec&5.99 sec&5.45 sec&\textbf{6.03 sec}\\
+					& & & &\\
+					\hline	
+					\end{tabular}
+					\end{center}
+					\caption{Tableau synthétique des temps de charge TALEND}
+					
+					\end{table} 
+	\subsection{Interprétations graphiques}
+	Au terme de toutes les expériences faites, il serait bien de réaliser un graphe de comparaison entre Talend et Pentaho. Ce graphe présentera les résultats des temps de chargement en fonction du nombre de ligne à charger de la table Product.\newline
+	\begin{figure}[!h]
+		\begin{center}
+			\includegraphics[width=12cm]{images/courbePentahoTalend.png}
+		\end{center}
+		\caption{Courbes représentatives du temps de charge en fonction de la taille de BDD}
+	\end{figure}
+	\newline
+	Nous voyons à partir des précédentes courbes que les temps de charge sont remarquablement différents d'une taille de base de données à une autre, mais aussi d'un outil à un autre.\newline
+En effet, aussi bien dans Talend que dans Pentaho, la durée du chargement des lignes augmente si nous rajoutons des lignes aux tables.Sur ce dernier outil, Pentaho, on peut dire que le temps de charge de charge devient deux fois plus élevé si l'on double le nombre d'enregistrements; donc le temps est à peu près proportionnel à la taille de la base.\newline
+Ce même phénomène d'augmentation de temps est aussi noté au niveau de Talend. Sauf que contrairement à Pentaho, ici, la durée de chargement ne double pas. On note simplement une évolution du temps, suivant le fait qu'on ait 5000 ou 10000 lignes de données.\newline
+Par ailleurs, il faut aussi souligner la différence importante que laisse voir la combinaison des deux courbes. En effet, pour des nombres d'enregistrements identiques et des types de données similaires, Talend met beaucoup plus de temps à charger les informations. Néanmoins, il est important de souligner que Pentaho utilise beaucoup plus de ressources processeur que Talend. Nous l'avons vu dans les caractéristiques et environnement de travail pour ces deux derniers outils. Pentaho utilise 1.6\% de CPU alors que Talend n'en utilise que 0.8\%. Ainsi, on pourrait se poser la question à savoir, cela ne serait-il pas à l'origine de la différence de temps de chargement entre les deux outils ?\newline
+
+Les expériences ne s'arrêteront pas là. En effet, nous allons dans la partie qui suit, expérimenter un autre aspect sur lequel les outils ETL permettent de travailler afin de manipuler des données: il s'agit de la création de cube OLAP. Nous ne rentrerons pas en détails sur ce sujet à ce stade, mais il serait utile et important de préciser que notre support principal servant aux futures expériences OLAP, sera Pentaho. Vu que d'après les résultats vu jusque là avec la charge de données, Pentaho présente un temps plus optimal, nous n'allons pas faire usage de Talend. Donc, toute manipulation de cubes sera faite sur des solutions qu'offre la solution logiciel PDI.
+
+\section{Expérimentation Big Data}
+Cette partie aura pour but essentiel de montrer la facilité à utiliser les technologies du Big Data au niveau des ETL, notamment Pentaho.\newline
+L'expérimentation consiste en l'étude de la partie Big Data. En d'autres termes, il s'agit de voir comment les outils étudiés précédemment (les outils ETL), gèrent l'intégration de données provenant de base de données NoSQL. Dans notre cas précis, c'est Pentaho qui nous concerne.\newline
+Il s'agit d'utiliser deux bases de données orientés Document (couchDB et MongoDB). Dans cette utilisation, notre objectif sera de mesurer les temps de charge en intégrant des données de sources publiques, d'une base de données à l'autre.\newline
+\textbf{Nos sources de données:}\newline
+Il s'agit d'une bibliographie stockant un ensemble de références représentant des ouvrages, des articles, des livres etc... Ces informations sont représentées sous forme de données \emph{JSON}.\newline Chaque référence est caractérisée par un type, un titre, une année, une url et le (ou les) auteurs de la source concernée. Nous faisons les expériences avec l'exemple de 3 documents dans la BDD.\newline
+\textbf{CouchDB:}\newline
+Notre environnement couchdb prêt, nous créons différents documents dans une base de données nommée "Bibliography". Chaque document représente dans notre cas, une référence de notre bibliographie.\newline
+Au niveau de l'outil ETL Pentaho, les données dans couchDB seront extraites pour alimenter un autre type de base de données Document "MongoDB.\newline
+\textbf{MongoDB:}\newline
+Au niveau de cette base de données, nous avons juste qu'à initialiser une base de données qui contiendra les documents en provenance de couchDB. Une fois cette base en place, le processus d'alimentation de Pentaho avec les correspondance pré-règlées nous permet de procéder à une intégration parfaite à l'issue de laquelle nous auront des statistiques et des metrics de toutes les opérations étant effectuées. \newline
+		\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=19cm]{images/statsMetricsPentaho.png}
+	\end{center}
+		\caption{Pentaho: Statistique Intégration CouchDB -> MongoDB}
+	\end{figure}
+	
+	
+\textbf{Discussions: } On remarque des chiffres variant selon la phase dans la quelle on se trouve. En d'autres termes, la phase d'extraction des données et celle de charge sont différentes en résultats présentés. En effet, pour 3 documents contenus dans la base de données source (CouchDB), Pentaho relate une vitesse de travail très négligeable. Ce qui n'est pas le cas au niveau de la BDD cible. Pour charger les données (3 documents dans notre cas) sur MongoDB, PDI n'a user que de 0.1 seconde, ce qui représente un temps optimal on peut dire. Bien sûr, le temps de charge serait beaucoup  si on avait un nombre de document assez important, des milliers par exemple.\newline
+Par ailleurs, la réalisation des expériences sur cette partie a présenté quelques difficultés, même si celles-ci ne sont pas majeures. Les lacunes concernent principalement la mise en place des architectures de CouchDB et de MongoDB sur notre environnement de travail (Macintosh). Aussi, la communication entre PDI et les bases de données Documents n'a pas été si fluide, mais ceci pour des raisons indépendantes de la fiabilité de Pentaho; on dira plutôt que cette situation était dû à une première prise en main des BDD (MongoDB par exemple).
+  \newpage
+
+	
+
+% *********************************************************************************************
+\section{Le modèle multidimensionnel}
+Ce modèle est la combinaison de tables de dimensions et de faits. Il faut voir le fait comme étant le sujet de l'analyse. Il est formé de \emph{mesures}. Ces mesures ont pour but de résumer un grand nombre d'enregistrements de données provenant d'une source, en quelques enregistrements.\newline
+La finalité du fait est d'être analysé selon des perspectives qui sont les \emph{dimensions}. Chaque dimension est définie par une structure hiérarchique; la dimension \emph{temps} par exemple, pourrait être divisée en années, mois, semaines...
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=8cm]{images/cubeMultidimensionnel.png}
+\end{center}
+\caption{Cube multidimensionnel à trois perspectives d'analyse}
+\end{figure}
+\newline
+La figure ci-dessus montre un cube qui permet d'analyser un indicateur de vente selon 3 dimensions qui sont le produit, le temps et la région.
+\subsection{L'analyse multidimensionnelle OLAP}
+L'analyse multidimensionnelle OLAP fait appel à un ensemble d'outils et de technologies permettant de réaliser quatre grandes phases principales du domaine multidimensionnel: la collecte, le stockage, le traitement et l'analyse de données multidimensionnelles. \newline
+En d'autres termes, ce sont des logiciels axés sur l'exploration des données, et leur analyse rapide selon une approche multidimensionnelle à plusieurs niveaux d'agrégation. \newline
+\subsubsection{Les objectifs de OLAP:}
+\begin{description}
+	\item[Exploration:]
+	Un des objectifs majeurs d'OLAP est d'assister l'utilisateur dans son processus d'analyse en lui offrant une rapidité remarquable d'exploration des données analyser.
+	\item[Facilité:]
+	Les utilisateurs n'ont pas besoin de maîtriser des langages d'interrogation (tel que SQL par exemple), ou de se familiariser à des interfaces complexes. Un utilisateur donné interroge directement les données, tout simplement en interagissant avec celles-ci. 
+	\item[Rapidité:] 
+Grâce à un processus de pré-agrégation stockée des données, OLAP permet aux utilisateurs d'être opérationnels en un temps record.
+\end{description}
+\subsubsection{Analyse multidimensionnelle Pentaho}
+Pentaho offre un analyseur très complet. En effet, il s'agit d'un riche outil d'aide à la décision. De ce fait, il y a un temps de réponse très rapide, même pour des questions complexes.\newline
+Par ailleurs, Pentaho offre des possibilités avancées de visualisation des données, via des tableaux de bords et l'intégration d'autres outils dans la suite que propose Pentaho. Pour aller plus loin, la solution intégrée offre également aux utilisateurs la possibilité de réaliser des bilans émanant de fichiers Excel; ce qui permet d'explorer et d'analyser des données directement dans Excel. Cette fonctionnalité est rendu possible par \emph{Mondrian OLAP}, une des meilleures implémentations OLAP en Open Source facilitant la mise en oeuvre d'analyses croisées pour toute l'entreprise. \cite{misc8}
+
+
+\textbf{Des outils supplémentaires:}\newline
+Pentaho intègre des outils supplémentaires, toujours en vue de permettre à l'utilisateur une facilité d'analyse interactive et très poussée de l'information. On peut citer à titre d'exemples, le \emph{drill-down} et le \emph{data-pivoting}\newline
+Ces outils offrent la possibilité d'explorer rapidement des données en vue de découvrir de nouvelles tendances ou des anomalies. A titre d'exemple, prenons le cas d'un utilisateur cherchant à avoir des informations commerciales pour une année passée; il pourrait faire un \emph{drill down} du résumé annuel pour pouvoir comparer des ventes à travers des produits, visualiser la vente par année etc...
+
+
+\textbf{Pentaho et les Cubes:}\newline
+La suite Pentaho se base sur l'outil Mondrian pour l'analyse multidimensionnelle. Ce dernier outil fait partie des cubes de type \emph{R-OLAP (Relational Online Analytical Processing)}, ce qui veut dire qu'il est basé sur une base de données relationnelle.\newline
+Dans la suite de ce document, nous ferons usage d'une topologie en étoile afin de créer des cubes via une base de données relationnelle.\newline
+\textbf{Contexte:} Pour créer le cube, nous ferons appel à:
+\begin{itemize}
+	\item Une table de fait 
+	\item Des dimensions
+	\item Des hiérarchies
+	\item Des mesures 
+\end{itemize} \newpage
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=13cm]{images/modeleEnEtoile.png}
+\end{center}
+\caption{Représentation d'un modèle en étoile}
+\end{figure}
+
+A ce stade, nous présentons la partie pratique concernant la création de cubes. Pour cela, nous allons utiliser le moteur OLAP Mondrian qui est fourni dans la
+plateforme de Pentaho Business Analytics, et son interface graphique JPivot. Cette interface nous permet de manipuler les données de notre cube, en l'occurrence de faire les opérations de base concernant le \emph{Slice}, le \emph{Drill} etc ... \newline
+Tout d'abord nous sommes appelés à mettre en place notre Data Warehouse, ensuite à l'alimenter. Dans notre cas précis, nous restons sur le même contexte et sur le même modèle que dans la partie intégration de données (Clients et produits d'un marché).\newline
+Le DW rempli, nous allons devoir effectuer un certain nombre de paramétrages pour que notre cube se comporte exactement comme nous voulons. Il s'agit du choix des dimensions, des mesures et de la table des faits.\newline
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=9cm]{images/parametrageDim.png}
+\end{center}
+\caption{Paramétrage cube OLAP sur Pentaho }
+\end{figure} \newpage
+Une fois toutes ces étapes réalisées, la création d'une vue Jpivot devient très simple à faire. En effet, le moteur Mondrian prend en compte notre paramétrage personnalisé et se charge de livrer à travers l'interface graphique, un cube avec des dimensions et les mesures.\newline
+Il faut préciser que le cube OLAP est un rendu des données sur lesquelles on veut travailler, ou bien sur lesquelles nous souhaitons qu'un utilisateur (le Data Analyst par exemple), puisse lire des informations afin d'en tirer des décisions et des prévisions. Un langage lange spécifique permet d'opérer sur les cubes, il s'agit du \emph{MDX (Multi Dimensional eXpressions)}.\newline
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=18cm]{images/codeMdx.png}
+\end{center}
+\caption{Script MDX du cube Pentaho}
+\end{figure}
+
+
+Le MDX va remarquablement faciliter la tâche, en ce qui concerne l'interrogation des données multidimensionnelles contenues dans le cube OLAP. Ainsi, il devient possible de changer l'ordonnancement par défaut des dimensions, que propose Jpivot dans un premier temps, aussi le rajout (ou suppression) de colonnes pour personnaliser l'affichage des mesures. En effet, il est possible de personnaliser davantage les champs du cube, en manipulant les informations qui y sont contenues.\newpage
+Le code prêt, il ne reste plus qu'à obtenir le rendu des informations concernant la gestion des produits du marché et des clients concernés. Les données sont alors représentées sous forme multidimensionnelle.\newline
+Ci-après, le cube OLAP, qui découle de notre script MDX :
+
+\begin{figure}[!h]
+\begin{center}
+			\includegraphics[width=11cm]{images/resultCube.png}
+\end{center}
+\caption{Cube OLAP - Gestion de produits}
+\end{figure}
+
+%\subsubsection{Analyse multidimensionnelle Talend}
+
+
+% ************************************ CONCLUSION ***********************************
+\addcontentsline{toc}{chapter}{\protect\numberline{}Conclusion}
+\chapter*{Conclusion}
+%http://blog.businessdecision.com/bigdata/2015/02/information/
+L'exploitation des données détient toute son importance dans le processus de développement de l'entreprise. En effet, quelque soit l'acteur concerné, Web Analyst, Data scientist, manager ou même le simple utilisateur, tout le monde tente de comprendre comment exploiter les données, et ce, dans le but d'en déduire les bénéfices réels d'une entreprise. Seulement, le volume de données est passé de peu volumineux à très volumineux, en quelques années. C'est ce qui a été à l'origine de plusieurs challenges soulevés par la plupart des Directeurs Marketing (pour ne citer qu'eux). Parmi ces challenges, la multiplication des terminaux servant à consulter l'information. D'où l'intérêt des outils ETL(s).
+
+
+Nous avons vu que ces outils permettaient d'extraire des informations de divers sources dans le but de mettre à la disposition de tous les utilisateurs, un entrepôt servant de moyen de consultation et de manipulation de données. Cette mise à disposition des données fait que les agents soient capables de faire des analyses et d'en tirer des conclusions pour enfin prendre des décisions: la Business Intelligence.
+
+
+Aujourd'hui, le volume des données n'est plus un problème en soi dans la mesure où on parle de large Data Warehouse. La variété des sources est aussi prise en compte avec les nouvelles technologies combinées à un coût faible d'intégration des données. Nous avons fait l'étude de quelques unes de ces technologies disponibles sur le marché, en mettant plus l'accès sur les outils Open Source. Grâce à une première étude synthétique, nous avons pu qualifier les technologies en fonction des avantages, des inconvénients et des fonctionnalités qu'elles proposent. C'est à l'issu de cette dernière qu'il nous a été possible de cibler deux outils ETL, afin de procéder à une étude en même temps comparative et expérimentale.
+
+
+Talend et Pentaho ont été nos supports de base pour réaliser toutes les expériences que nous avions fait dans ce document.
+Ces derniers outils ont su supporter tous les types de sources utilisées pour nos expériences. Néanmoins, il y a différences de comportement en ce qui concerne les fonctionnalités offertes, les connectivités des outils, les temps de charge etc...\newline
+En effet, les expériences poussent plutôt à porter un choix sur Pentaho. Ceci s'explique par les chiffres obtenus. On voit nettement que le temps de charge pour des données stockées dans une BDD relationnelles est beaucoup plus petit sur Pentaho que sur Talend.  
+
+
+A ce stade, aucun choix catégorique ne pourrait se faire en ce qui concerne un meilleur outil à nommer de façon définitive. Ces deux dernières technologies ont chacune leur avantage et inconvénient. Par ailleurs, les temps de chargement des données peut varier d'un outil à un autre, mais il faut aussi tenir compte de la facilité d'accès et de mise en place des connectivités que propose chacun des outils. Donc, pour départager, il serait mieux de partir sur une théorie selon laquelle un bon choix repose sur ce qu'un utilisateur veut faire en terme de manipulation de données, et de ce dont il a besoin en ce qui concerne les fonctionnalités que propose l'ETL.
+
+
+Comme travaux futurs, il est prévu d'aller davantage en profondeur sur l'intégration avec des sources Big Data, notamment avec Talend. En effet, toutes les expérimentations faites avec MongoDB et CouchDB au niveau de PDI, seront reprises sur TOS. Par ailleurs, il serait aussi très important de considérer une charge de données Big Data plus étendue dans l'optique d'avoir des chiffres plus significatifs. C'est à dire, augmenter le nombre de données pour passer à des base de données Documents plus larges (10 000, 15 000, 20 000 documents).
+
+
+	
+\addcontentsline{toc}{chapter}{\protect\numberline{}Wébographie}	
+\chapter*{Wébographie}
+\begin{description}
+	\item \textbf{http://www.piloter.org/business-intelligence-open-source}
+	\item \textbf{https://fr.talend.com/solutions/etl-analytics}
+		\item \textbf{https://fr.talend.com/solutions/etl-analytics}
+			\item \textbf{http://www.datasciencecentral.com/profiles/blogs/10-open-source-etl-tools}
+			\item \textbf{https://comparisons.financesonline.com/jaspersoft-vs-pentaho}
+			\item \textbf{http://www.datasciencecentral.com/profiles/blogs/10-open-source-etl-tools}
+			\item \textbf{http://www.supinfo.com/articles/single/804-solutions-etl-open-source}
+			\item \textbf{https://fr.talend.com/solutions/etl-analytics}
+
+
+
+\end{description}
+
+
+					\bibliographystyle{unsrt}
+					\bibliography{biblio}
+					
+					
+
+%}
+\end{document}
